@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Not Pixel Battle Canvas Stats</title>
+    <link rel="icon" type="image/png" href="images/wibuwonderlandlogo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Yarndings+12&family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div id="google_translate_element"></div>
+
+    <div class="container">
+        <header>
+            <h1 class="main-title">Not Pixel Dashboard</h1>
+            <div class="subtitle-jp">ノットピクセル統計ダッシュボード</div>
+            <p class="subtitle">Real-time Statistics for Not Pixel Battle Canvas</p>
+        </header>
+
+        <section id="stats-grid" class="stats-grid-custom">
+            <div class="stat-card">
+                <img src="images/tournamentbanklogo.png" alt="Tournament Bank Logo">
+                <div>
+                    <h4>Tournament Bank</h4>
+                    <p><span id="tournament-bank">Not Available</span> <img class="inline-logo"
+                            src="images/notpixellogov1.png" alt="PX Logo"></p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <img src="images/burnbanklogo.png" alt="Burn Bank Logo">
+                <div>
+                    <h4>Burn Bank</h4>
+                    <p><span id="burn-bank">Not Available</span> <img class="inline-logo"
+                            src="images/notpixellogov1.png" alt="PX Logo"></p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <img src="images/totalbanklogo.png" alt="Total Bank Logo">
+                <div>
+                    <h4>Total Bank</h4>
+                    <p><span id="total-bank">Not Available</span> <img class="inline-logo"
+                            src="images/notpixellogov1.png" alt="PX Logo"></p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <img src="images/notpixellogov1.png" alt="Live Token Supply Logo">
+                <div>
+                    <h4>Live Token Supply</h4>
+                    <p><span id="live-supply">Not Available</span> <img class="inline-logo"
+                            src="images/notpixellogov1.png" alt="PX Logo"></p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <img src="images/onlinelogo.webp" alt="Online Players Logo">
+                <div>
+                    <h4>App Online Players</h4>
+                    <p id="online-players">Not Available</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="pixel-details" class="card">
+            <h2><img src="images/notpixellogov1.png" class="inline-logo" alt="PX Logo"> Details</h2>
+            <div class="pixel-info">
+                <p><img src="images/notpixellogov1.png" class="inline-logo" alt="PX Logo"> <strong>Area:</strong>
+                    [512x512] = 262,144 (<span id="pixel-area-percentage">25%</span> of Max Area [1024x1024])</p>
+                <p><img src="images/notpixellogov1.png" class="inline-logo" alt="PX Logo"> <strong>Available (you can
+                        buy anytime):</strong> <span id="pixel-available">N/A</span> (<span
+                        id="pixel-available-percentage">N/A</span>)</p>
+                <p><img src="images/notpixellogov1.png" class="inline-logo" alt="PX Logo"> <strong>Locked:</strong>
+                    <span id="pixel-locked">N/A</span> (<span id="pixel-locked-percentage">N/A</span>)
+                </p>
+                <p class="warning-text"><i>Note: Pixel data may be inaccurate depending on the API status. Please be
+                        cautious when referencing this data. See Q&A #1 for more details.</i></p>
+            </div>
+
+            <h3><img src="images/notpixellogov1.png" class="inline-logo" alt="PX Logo"> Buy Price</h3>
+            <div class="price-table-container">
+                <table id="pixel-price-table">
+                    <thead>
+                        <tr>
+                            <th>Price</th>
+                            <th>Count</th>
+                            <th>% of total pixel available</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <p class="warning-text">Pixel data may not be displayed correctly (see Q&amp;A #1), but all pixel
+                    numbers shown here 100% EXIST. If a pixel price (e.g., 4 or 8) has no available pixels, the website
+                    will automatically hide that row regardless of data accuracy.</p>
+            </div>
+
+            <h3>Most Expensive Pixel</h3>
+            <div class="most-expensive">
+                <p><strong>Coordinates:</strong> <a id="most-expensive-link" href="#" target="_blank"><span
+                            id="most-expensive-coords">(N/A, N/A)</span></a></p>
+                <p><strong>PX used to buy:</strong> <span id="owner-buy-price">N/A</span> <img class="inline-logo"
+                        src="images/notpixellogov1.png" alt="PX Logo"></p>
+                <p><strong>PX to buy now:</strong> <span id="current-price">N/A</span> <img class="inline-logo"
+                        src="images/notpixellogov1.png" alt="PX Logo"></p>
+                <p><strong>Status:</strong> <span id="pixel-status">Not Available</span></p>
+            </div>
+        </section>
+
+        <section id="donate" class="card">
+            <h2>Buy me a coffee to support the project</h2>
+            <div class="donate-grid">
+                <div class="donate-item">
+                    <img src="images/tonlogo.png" alt="TON">
+                    <span><strong>TON:</strong> UQD6Nr0OyY15ee8Mzr5l2J8B0KHTN1fpM4ylwL31HtghWNlj</span>
+                </div>
+                <div class="donate-item">
+                    <img src="images/notpixellogov1.png" alt="PX">
+                    <span><strong>PX:</strong> UQD6Nr0OyY15ee8Mzr5l2J8B0KHTN1fpM4ylwL31HtghWNlj</span>
+                </div>
+                <div class="donate-item">
+                    <img src="images/usdtlogo.png" alt="USDT">
+                    <span><strong>USDT (TON):</strong> UQD6Nr0OyY15ee8Mzr5l2J8B0KHTN1fpM4ylwL31HtghWNlj</span>
+                </div>
+                <div class="donate-item">
+                    <img src="images/usdtlogo.png" alt="USDT">
+                    <span><strong>USDT (POL):</strong> 0x5404766929e34cafb243b6f95a44b98c7d65786e</span>
+                </div>
+                <div class="donate-item">
+                    <img src="images/usdclogo.png" alt="USDC">
+                    <span><strong>USDC (POL):</strong> 0x5404766929e34cafb243b6f95a44b98c7d65786e</span>
+                </div>
+                <div class="donate-item">
+                    <img src="images/pollogo.png" alt="POL">
+                    <span><strong>POL (POL):</strong> 0x5404766929e34cafb243b6f95a44b98c7d65786e</span>
+                </div>
+                <div class="donate-item">
+                    <img src="images/sollogo.png" alt="SOL">
+                    <span><strong>SOL (SOL):</strong> 3YWUsX6UfR6kDWBMo7nKp2mqn7XV248A9cAY915kD9XJ</span>
+                </div>
+                <div class="donate-item">
+                    <img src="images/sollogo.png" alt="SOL">
+                    <span><strong>SOL (BEP20):</strong> 0x5404766929e34cafb243b6f95a44b98c7d65786e</span>
+                </div>
+                <div class="donate-item">
+                    <img src="images/Bitcoin.svg.png" alt="BTC">
+                    <span><strong>BTC (BEP20):</strong> 0x5404766929e34cafb243b6f95a44b98c7d65786e</span>
+                </div>
+                <div class="donate-item">
+                    <img src="images/ethlogo.webp" alt="ETH">
+                    <span><strong>ETH (BNB/ERC20):</strong> 0x5404766929e34cafb243b6f95a44b98c7d65786e</span>
+                </div>
+                <div class="donate-item">
+                    <img src="images/bnblogo.png" alt="BNB">
+                    <span><strong>BNB (BEP20/opBNB/ERC20):</strong> 0x5404766929e34cafb243b6f95a44b98c7d65786e</span>
+                </div>
+                <div class="donate-item">
+                    <img src="images/paypallogo.png" alt="Paypal">
+                    <span><strong>Paypal:</strong> <a href="https://paypal.me/wibuwonderland"
+                            target="_blank">https://paypal.me/wibuwonderland</a></span>
+                </div>
+            </div>
+        </section>
+
+        <section id="qa" class="card">
+        </section>
+
+        <section id="qa" class="card">
+            <h2>Q&A</h2>
+
+            <div class="qa-item">
+                <h3>0. What is Not Pixel and can it help me earn some "breakfast"? How can I join Not Pixel?</h3>
+                <p><b>Not Pixel</b> is a mini-app within Telegram where you can participate in <b>pixel art creation
+                        to
+                        earn points and win exciting rewards.</b> Specifically, <b>Season 2</b> of Not Pixel focuses
+                    on
+                    an <b>"invest to win and earn"</b> mechanism.</p>
+                <p>Regarding whether you can "earn some breakfast," Not Pixel operates on a <b>play-to-earn
+                        (P2E)</b>
+                    model, where players earn <b>PX points</b> through in-game activities. These points have the
+                    potential to be converted into cryptocurrency. However, the actual ability to "earn a living"
+                    from
+                    P2E projects depends on many factors such as the token's value, market volatility, and your
+                    level of
+                    participation.</p>
+                <p>You can join Not Pixel instantly by clicking here: <a
+                        href="https://t.me/notpixel/app?startapp=f5822071900_s577266"
+                        target="_blank">https://t.me/notpixel/app?startapp=f5822071900_s577266</a></p>
+                <p><i>Disclaimer: Please <b>Do Your Own Research (DYOR)</b> thoroughly before participating. I am
+                        only
+                        providing information and do not offer financial advice or take responsibility for any
+                        outcomes.</i></p>
+            </div>
+
+            <div class="qa-item">
+                <h3>1. Why are some data showing as incorrect / not available?</h3>
+                <p>The reason some data might appear incorrect or unavailable could be due to one of the following:
+                </p>
+                <ul>
+                    <li><b>API Update Error:</b> There might be an issue with the data update process from the Not Pixel
+                        app's API.</li>
+                    <li><b>Not Pixel Team Hiding Stats:</b> The Not Pixel development team might have decided to
+                        temporarily or permanently hide certain statistics.</li>
+                    <li><b>Loading:</b> In some cases, please allow up to 15 seconds for the website to fully load. (In
+                        95% of tests, the website loads completely in under 5 seconds.)</li>
+                </ul>
+            </div>
+
+            <div class="qa-item">
+                <h3>2. Why is there a donate section?</h3>
+                <p>You should consider donating for these reasons:</p>
+                <ul>
+                    <li><b>Support Future Development:</b> Your donation helps fund upcoming updates, new Not Pixel
+                        modes & seasons, and exciting new projects. Every contribution brings new possibilities.
+                    </li>
+                    <li><b>Show Appreciation:</b> If this project has saved you time or helped improve your
+                        strategy, a
+                        donation is a great way to say thanks.</li>
+                    <li><b>Keep Me Motivated:</b> Even a small donation means a lot. It shows me that my work is
+                        recognized and gives me the motivation to keep going and build even more for the community.
+                    </li>
+                </ul>
+            </div>
+
+            <div class="qa-item">
+                <h3>3. What is the purpose of this website?</h3>
+                <p>The main purpose of this website is to help people follow the trend of the current tournament and
+                    view interesting stats from the Not Pixel app.</p>
+            </div>
+        </section>
+
+        <footer>
+            <p>Contact me on telegram: <a href="https://t.me/mikaakabano" target="_blank">@mikaakabano</a></p>
+            <p id="update-status">Updating data...</p>
+        </footer>
+    </div>
+
+    <script type="text/javascript"
+        src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,486 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Yarndings+12&display=swap');
+
+:root {
+    --primary-color: #fff;
+    --secondary-color: #c0c0c0;
+    /* Sáng hơn một chút */
+    --background-color: #10101a;
+    --card-background: rgba(16, 22, 32, 0.35);
+    /* Reduced opacity for more faded look */
+    /* Tối hơn, trong hơn */
+    --accent-color: #00f2ea;
+    --border-color: rgba(0, 242, 234, 0.1);
+    /* Slightly more transparent border */
+    --shadow-color: rgba(0, 242, 234, 0.1);
+    --font-main: 'M PLUS Rounded 1c', sans-serif;
+    --font-title: 'Yarndings 12', cursive;
+}
+
+/* Hiệu ứng chuyển động cho tiêu đề */
+@keyframes title-glow {
+
+    0%,
+    100% {
+        text-shadow: 0 0 8px var(--accent-color), 0 0 16px var(--accent-color);
+    }
+
+    50% {
+        text-shadow: 0 0 12px #fff, 0 0 20px var(--accent-color);
+    }
+}
+
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-main);
+    background: url('images/bg.png') center center/cover no-repeat fixed;
+    color: var(--primary-color);
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(16, 16, 26, 0.4);
+    /* Slightly more transparent overlay */
+    z-index: 0;
+    pointer-events: none;
+}
+
+.container,
+header,
+main,
+footer,
+.card,
+.stat-card,
+.donate-item,
+.qa-item {
+    position: relative;
+    z-index: 1;
+    background: rgba(16, 22, 32, 0.3);
+    /* Reduced opacity here */
+    backdrop-filter: blur(6px);
+    /* Slightly less blur to reveal more of the background */
+    border: 1.5px solid rgba(0, 242, 234, 0.1);
+    /* More transparent border */
+    box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.2);
+    /* Slightly less intense shadow */
+    border-radius: 16px;
+}
+
+.container {
+    max-width: 1000px;
+    width: 98vw;
+    margin: 20px auto;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.5);
+    /* Reduced opacity for the main container */
+    border-radius: 15px;
+    box-shadow: 0 2px 16px 0 rgba(0, 0, 0, 0.18);
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.main-title {
+    font-family: var(--font-title);
+    font-size: 3.2rem;
+    color: var(--accent-color);
+    margin: 0;
+    animation: title-glow 4s ease-in-out infinite;
+    letter-spacing: 2px;
+}
+
+.subtitle {
+    color: var(--secondary-color);
+    font-size: 1.1rem;
+    margin-top: 8px;
+}
+
+.subtitle-jp {
+    font-family: 'Noto Sans JP', 'M PLUS Rounded 1c', sans-serif;
+    font-size: 1.15rem;
+    color: #b0eaff;
+    text-align: center;
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+    font-weight: 500;
+}
+
+/* Card base style với hiệu ứng */
+.card {
+    background: var(--card-background);
+    /* Uses the updated --card-background variable */
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 16px 0 rgba(0, 0, 0, 0.28);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: 0 0 16px var(--shadow-color);
+}
+
+.card,
+.stat-card,
+.donate-item,
+.qa-item,
+.card * {
+    font-weight: 500;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+    /* Keep or slightly increase text shadow for readability */
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: rgba(16, 22, 32, 0.3);
+    /* Directly reduced opacity for stat cards */
+    border-radius: 10px;
+    padding: 13px 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid var(--border-color);
+    transition: box-shadow 0.2s;
+    min-width: 0;
+    box-shadow: 0 2px 16px 0 rgba(0, 0, 0, 0.28);
+}
+
+.stat-card img {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+    border-radius: 7px;
+    background: #fff1;
+}
+
+.stat-card h4 {
+    margin: 0 0 2px 0;
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.stat-card p {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    display: flex;
+    /* Căn logo và text */
+    align-items: center;
+}
+
+/* CSS cho bảng giá mới */
+.price-table-container {
+    width: 100%;
+    overflow-x: auto;
+    /* Cho phép cuộn ngang trên mobile nếu bảng quá rộng */
+}
+
+#pixel-price-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    margin-bottom: 25px;
+    font-size: 1rem;
+}
+
+#pixel-price-table th,
+#pixel-price-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+#pixel-price-table th {
+    text-align: left;
+    color: var(--accent-color);
+    font-weight: bold;
+    background: rgba(0, 242, 234, 0.02);
+    /* More transparent header background */
+}
+
+#pixel-price-table td {
+    text-align: left;
+}
+
+#pixel-price-table td:nth-child(2),
+#pixel-price-table td:nth-child(3) {
+    text-align: right;
+}
+
+#pixel-price-table .price-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#pixel-price-table .inline-logo {
+    margin-right: 6px;
+    margin-left: 0;
+    vertical-align: middle;
+    object-fit: contain;
+}
+
+.stat-row {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 18px;
+    justify-content: center;
+}
+
+.stat-row:last-child {
+    margin-bottom: 0;
+}
+
+@media (max-width: 900px) {
+    .container {
+        max-width: 98vw;
+        padding: 8px;
+    }
+
+    .main-title {
+        font-size: 2.2rem;
+    }
+
+    .stats-grid,
+    .donate-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .stat-row {
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 600px) {
+    .container {
+        margin: 5px;
+        padding: 5px;
+    }
+
+    .main-title {
+        font-size: 1.5rem;
+    }
+
+    .stats-grid,
+    .donate-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #google_translate_element {
+        position: static;
+        margin: 0 auto 20px auto;
+        display: block;
+        text-align: center;
+    }
+
+    .anime-sticker {
+        width: 70px;
+        bottom: 6px;
+        right: 6px;
+    }
+}
+
+/* Các style khác giữ nguyên */
+.subtitle,
+footer p,
+.qa-item p,
+.qa-item li {
+    color: var(--secondary-color);
+}
+
+.inline-logo {
+    width: 1.2em;
+    height: 1.2em;
+    vertical-align: middle;
+    margin-left: 0.2em;
+    object-fit: contain;
+}
+
+.warning-text {
+    color: #ffae00;
+    font-style: italic;
+    margin-top: 10px;
+    font-size: 0.95em;
+}
+
+#google_translate_element {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 100;
+}
+
+.goog-te-gadget-simple {
+    background-color: rgba(16, 22, 32, 0.3) !important;
+    /* Reduced opacity */
+    border: 1px solid rgba(0, 242, 234, 0.1) !important;
+    /* More transparent border */
+    border-radius: 8px !important;
+}
+
+.goog-te-gadget-simple span {
+    color: var(--primary-color) !important;
+}
+
+.donate-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.donate-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.1);
+    /* Reduced opacity for donate items */
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 1rem;
+    color: var(--primary-color);
+    word-break: break-all;
+    box-shadow: 0 2px 16px 0 rgba(0, 0, 0, 0.28);
+}
+
+.donate-item img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: #fff1;
+}
+
+.donate-item a {
+    color: #00f2ea;
+    text-decoration: underline;
+    font-weight: 500;
+}
+
+.donate-item a:hover {
+    color: #40e0ff;
+}
+
+.qa-item h3 {
+    color: var(--accent-color);
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+}
+
+.qa-item p,
+.qa-item li {
+    color: var(--secondary-color);
+    font-size: 1rem;
+}
+
+footer {
+    text-align: center;
+    margin-top: 30px;
+    color: var(--secondary-color);
+    font-size: 1rem;
+}
+
+footer a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+.stats-grid-custom {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto auto;
+    gap: 18px;
+    margin-bottom: 30px;
+}
+
+.stats-grid-custom .stat-card:nth-child(1) {
+    grid-row: 1;
+    grid-column: 1;
+}
+
+.stats-grid-custom .stat-card:nth-child(2) {
+    grid-row: 1;
+    grid-column: 2;
+}
+
+.stats-grid-custom .stat-card:nth-child(3) {
+    grid-row: 1;
+    grid-column: 3;
+}
+
+.stats-grid-custom .stat-card:nth-child(4) {
+    grid-row: 2;
+    grid-column: 1;
+}
+
+.stats-grid-custom .stat-card:nth-child(5) {
+    grid-row: 2;
+    grid-column: 2;
+}
+
+@media (max-width: 900px) {
+    .stats-grid-custom {
+        grid-template-columns: 1fr;
+        grid-template-rows: none;
+    }
+
+    .stats-grid-custom .stat-card {
+        width: 100% !important;
+        margin: 0 !important;
+        display: block;
+        grid-column: auto !important;
+        grid-row: auto !important;
+    }
+}
+
+.most-expensive a {
+    color: #00f2ea;
+    text-decoration: underline;
+    font-weight: 500;
+}
+
+.most-expensive a:hover {
+    color: #40e0ff;
+}
+
+.qa-item a {
+    color: #00f2ea;
+    text-decoration: underline;
+    font-weight: 500;
+}
+
+.qa-item a:hover {
+    color: #40e0ff;
+}
+
+@media (max-width: 900px) {
+    .donate-grid {
+        grid-template-columns: 1fr;
+    }
+}
