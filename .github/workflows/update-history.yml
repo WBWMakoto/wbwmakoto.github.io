@@ -2,7 +2,7 @@ name: Update History
 
 on:
   schedule:
-    - cron: '*/5 * * * *' # Mỗi 5 phút
+    - cron: '*/3 * * * *' # Mỗi 5 phút
   workflow_dispatch:
 
 permissions:
