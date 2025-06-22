@@ -649,3 +649,23 @@ footer a:hover {
     letter-spacing: 1px;
     margin-right: 8px;
 }
+
+.delta-up {
+    color: #00ff80;
+    font-weight: bold;
+    margin-left: 8px;
+    font-size: 0.98em;
+}
+
+.delta-down {
+    color: #ff6464;
+    font-weight: bold;
+    margin-left: 8px;
+    font-size: 0.98em;
+}
+
+.delta-arrow {
+    font-size: 1em;
+    vertical-align: middle;
+    margin-right: 2px;
+}

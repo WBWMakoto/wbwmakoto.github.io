@@ -224,7 +224,9 @@ function renderExcelTable(data) {
   container.innerHTML = html;
 }
 
-// Hàm hiển thị bảng động tự động từ rewardBank
+// Lưu giá trị cũ của các chỉ số để so sánh tăng/giảm
+let prevRowValues = null;
+
 function renderAutoTable(rewardBank) {
   const container = document.getElementById('auto-table-container');
   if (!container) return;
@@ -300,21 +302,33 @@ function renderAutoTable(rewardBank) {
     { label: 'Top 1 PX Holder', color: '#FFC0CB', value: top1PXHolder },
     { label: 'Top 512 PX Holder', color: '#FFC0CB', value: top512PXHolder },
     { label: 'Buy Final Bank (10%)', color: '#ADD8E6', value: buyFinalBank },
-    { label: 'Top 1 Buy Final', color: '#90EE90', value: top1BuyFinal },
-    { label: 'Top 512 Buy Final', color: '#90EE90', value: top512BuyFinal },
+    { label: 'T1 Final', color: '#90EE90', value: top1BuyFinal },
+    { label: 'T512 Final', color: '#90EE90', value: top512BuyFinal },
     { label: 'Most Expensive Bank (1%)', color: '#ADD8E6', value: mostExpensivePixelBank },
   ];
+
   let html = '<div style="margin: 24px 0 8px 0">';
   html +=
     '<h3 style="text-align:center;color:#00f2ea;margin-bottom:10px;letter-spacing:1px;">' +
     '<span class="live-emoji">🔴</span><span class="live-label">LIVE</span>PX Tournament Reward Distribution</h3>';
   html += '<div style="overflow-x:auto">';
   html += '<table class="excel-table"><tbody>';
-  rows.forEach((row) => {
-    html += `<tr><th style="min-width:180px;text-align:left;background:${row.color};color:#222;font-weight:700;">${
+  rows.forEach((row, idx) => {
+    let deltaHtml = '';
+    if (prevRowValues && typeof prevRowValues[idx] === 'number') {
+      const diff = row.value - prevRowValues[idx];
+      if (diff > 0) {
+        deltaHtml = `<span class=\"delta-up\"><span class=\"delta-arrow\">▲</span>+${formatNumber(diff)}</span>`;
+      } else if (diff < 0) {
+        deltaHtml = `<span class=\"delta-down\"><span class=\"delta-arrow\">▼</span>${formatNumber(diff)}</span>`;
+      }
+    }
+    html += `<tr><th style=\"min-width:180px;text-align:left;background:${row.color};color:#222;font-weight:700;\">${
       row.label
-    }</th><td style="text-align:right;background:#181818;color:#fff;">${formatNumber(row.value)}</td></tr>`;
+    }</th><td style=\"text-align:right;background:#181818;color:#fff;\">${formatNumber(row.value)}${deltaHtml}</td></tr>`;
   });
   html += '</tbody></table></div></div>';
   container.innerHTML = html;
+  // Lưu lại giá trị hiện tại để so sánh lần sau
+  prevRowValues = rows.map((r) => r.value);
 }
