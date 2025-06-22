@@ -73,6 +73,17 @@
             <h2><img src="images/notpixellogov1.png" class="inline-logo" alt="PX Logo"> Details</h2>
             <div id="auto-table-container"></div>
             <div class="pixel-info">
+                <!-- Biểu đồ Tournament Bank -->
+                <div id="chart-filter" style="margin-bottom: 10px; text-align:center;">
+                    <button data-range="all">All</button>
+                    <button data-range="minute">Last 60 minutes</button>
+                    <button data-range="hour">Last 24 hours</button>
+                    <button data-range="day">Last 7 days</button>
+                    <button data-range="week">Last 30 days</button>
+                </div>
+                <canvas id="tournamentChart" height="80"
+                    style="max-width:100%;background:#181818;border-radius:10px;margin-bottom:18px;"></canvas>
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                 <p><img src="images/notpixellogov1.png" class="inline-logo" alt="PX Logo"> <strong>Area:</strong>
                     [512x512] = 262,144 (<span id="pixel-area-percentage">25%</span> of Max Area [1024x1024])</p>
                 <p><img src="images/notpixellogov1.png" class="inline-logo" alt="PX Logo"> <strong>Available (you can

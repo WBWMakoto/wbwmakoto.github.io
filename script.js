@@ -302,8 +302,8 @@ function renderAutoTable(rewardBank) {
     { label: 'Top 1 PX Holder', color: '#FFC0CB', value: top1PXHolder },
     { label: 'Top 512 PX Holder', color: '#FFC0CB', value: top512PXHolder },
     { label: 'Buy Final Bank (10%)', color: '#ADD8E6', value: buyFinalBank },
-    { label: 'T1 Final', color: '#90EE90', value: top1BuyFinal },
-    { label: 'T512 Final', color: '#90EE90', value: top512BuyFinal },
+    { label: 'Top 1 Buy Final', color: '#90EE90', value: top1BuyFinal },
+    { label: 'Top 512 Buy Final', color: '#90EE90', value: top512BuyFinal },
     { label: 'Most Expensive Bank (1%)', color: '#ADD8E6', value: mostExpensivePixelBank },
   ];
 
@@ -332,3 +332,82 @@ function renderAutoTable(rewardBank) {
   // Lưu lại giá trị hiện tại để so sánh lần sau
   prevRowValues = rows.map((r) => r.value);
 }
+
+let chartInstance = null;
+let historyData = [];
+
+function filterData(range) {
+  const now = Date.now();
+  let ms = Infinity;
+  if (range === 'minute') ms = 60 * 60 * 1000;
+  if (range === 'hour') ms = 24 * 60 * 60 * 1000;
+  if (range === 'day') ms = 7 * 24 * 60 * 60 * 1000;
+  if (range === 'week') ms = 30 * 24 * 60 * 60 * 1000;
+  return historyData.filter((d) => range === 'all' || now - new Date(d.timestamp).getTime() <= ms);
+}
+
+function renderChart(range = 'all') {
+  const data = filterData(range);
+  const labels = data.map((d) => new Date(d.timestamp).toLocaleString());
+  const values = data.map((d) => d.rewardBank);
+  if (chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(document.getElementById('tournamentChart'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Tournament Bank',
+          data: values,
+          borderColor: '#00f2ea',
+          backgroundColor: 'rgba(0,242,234,0.1)',
+          fill: true,
+          tension: 0.2,
+        },
+      ],
+    },
+    options: {
+      plugins: { legend: { labels: { color: '#00f2ea' } } },
+      scales: {
+        x: { ticks: { color: '#fff' } },
+        y: { ticks: { color: '#fff' } },
+      },
+    },
+  });
+}
+
+fetch('history.json')
+  .then((res) => res.json())
+  .then((data) => {
+    historyData = data;
+    renderChart('all');
+    document.querySelectorAll('#chart-filter button').forEach((btn) => {
+      btn.onclick = () => renderChart(btn.dataset.range);
+    });
+  });
+
+function getDeltaAt(history, nowIdx, msAgo) {
+  const nowTime = new Date(history[nowIdx].timestamp).getTime();
+  // Tìm bản ghi gần nhất trước mốc msAgo
+  for (let i = nowIdx - 1; i >= 0; i--) {
+    const t = new Date(history[i].timestamp).getTime();
+    if (nowTime - t >= msAgo) {
+      return history[nowIdx].rewardBank - history[i].rewardBank;
+    }
+  }
+  return null; // Không đủ dữ liệu
+}
+
+// Khi render bảng hoặc biểu đồ:
+const ms5min = 5 * 60 * 1000;
+const ms1h = 60 * 60 * 1000;
+const ms1d = 24 * 60 * 60 * 1000;
+const ms1w = 7 * 24 * 60 * 60 * 1000;
+
+historyData.forEach((point, idx) => {
+  const delta5min = getDeltaAt(historyData, idx, ms5min);
+  const delta1h = getDeltaAt(historyData, idx, ms1h);
+  const delta1d = getDeltaAt(historyData, idx, ms1d);
+  const delta1w = getDeltaAt(historyData, idx, ms1w);
+  // Hiển thị các delta này bên cạnh giá trị point.rewardBank
+});
