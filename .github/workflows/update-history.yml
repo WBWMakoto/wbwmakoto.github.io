@@ -5,6 +5,9 @@ on:
     - cron: '*/5 * * * *' # Mỗi 5 phút
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   update-history:
     runs-on: ubuntu-latest
