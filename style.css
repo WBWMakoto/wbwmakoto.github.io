@@ -661,11 +661,38 @@ footer a:hover {
     color: #ff6464;
     font-weight: bold;
     margin-left: 8px;
-    font-size: 0.98em;
 }
 
 .delta-arrow {
     font-size: 1em;
     vertical-align: middle;
     margin-right: 2px;
+}
+
+#chart-container {
+    position: relative;
+    border-radius: 10px;
+    margin-bottom: 18px;
+    background: url('images/graphbg.jpg') center center / cover no-repeat;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+}
+
+#chart-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(24, 24, 24, 0.85);
+    border-radius: 10px;
+    z-index: 0;
+}
+
+#tournamentChart {
+    position: relative;
+    z-index: 1;
+    background-color: transparent !important;
+    max-width: 100%;
 }

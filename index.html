@@ -80,9 +80,19 @@
                     <button data-range="hour">Last 24 hours</button>
                     <button data-range="day">Last 7 days</button>
                     <button data-range="week">Last 30 days</button>
+                    <div style="margin-top: 10px;">
+                        <input type="datetime-local" id="start-datetime"
+                            style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; background-color: #333; color: white;">
+                        <span style="color: white; margin: 0 10px;">to</span>
+                        <input type="datetime-local" id="end-datetime"
+                            style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; background-color: #333; color: white;">
+                        <button id="custom-range-btn"
+                            style="padding: 5px 10px; border-radius: 5px; border: none; background-color: #4CAF50; color: white; margin-left: 10px; cursor: pointer;">Filter</button>
+                    </div>
                 </div>
-                <canvas id="tournamentChart" height="80"
-                    style="max-width:100%;background:#181818;border-radius:10px;margin-bottom:18px;"></canvas>
+                <div id="chart-container">
+                    <canvas id="tournamentChart" height="80"></canvas>
+                </div>
                 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                 <p><img src="images/notpixellogov1.png" class="inline-logo" alt="PX Logo"> <strong>Area:</strong>
                     [512x512] = 262,144 (<span id="pixel-area-percentage">25%</span> of Max Area [1024x1024])</p>
@@ -93,7 +103,8 @@
                     <span id="pixel-locked">N/A</span> (<span id="pixel-locked-percentage">N/A</span>)
                 </p>
                 <p class="warning-text"><i>Note: Pixel data may be inaccurate depending on the API status. Please be
-                        cautious when referencing this data. See Q&A #1 for more details.</i></p>
+                        cautious when referencing this data. See Q&A #1 for more details. For graph please CTRL + F5 if
+                        you see the graph is not updated.</i></p>
             </div>
 
             <h3><img src="images/notpixellogov1.png" class="inline-logo" alt="PX Logo"> Buy Price</h3>

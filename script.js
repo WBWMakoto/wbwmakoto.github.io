@@ -310,7 +310,8 @@ function renderAutoTable(rewardBank) {
   let html = '<div style="margin: 24px 0 8px 0">';
   html +=
     '<h3 style="text-align:center;color:#00f2ea;margin-bottom:10px;letter-spacing:1px;">' +
-    '<span class="live-emoji">🔴</span><span class="live-label">LIVE</span>PX Tournament Reward Distribution</h3>';
+    '<span class="live-emoji">🔴</span><span class="live-label">LIVE</span>Not Pixel Tournament Reward Distribution</h3>';
+  html += '<p style="text-align:center; font-size: 0.8em; color: #c0c0c0; margin-top: -8px; margin-bottom: 12px;">Data refreshes every 10s. Values ▲ / ▼ show the change since the last update.</p>';
   html += '<div style="overflow-x:auto">';
   html += '<table class="excel-table"><tbody>';
   rows.forEach((row, idx) => {
@@ -336,7 +337,26 @@ function renderAutoTable(rewardBank) {
 let chartInstance = null;
 let historyData = [];
 
-function filterData(range) {
+function filterData(range, customRange = {}) {
+  if (range === 'custom') {
+    const { start, end } = customRange;
+    if (!start || !end) {
+      return historyData; // Trả về toàn bộ nếu không có ngày tháng
+    }
+    const startTime = new Date(start).getTime();
+    const endTime = new Date(end).getTime();
+
+    if (startTime >= endTime) {
+      alert('Start date must be before end date.');
+      return []; // Trả về mảng rỗng để không vẽ gì
+    }
+
+    return historyData.filter((d) => {
+      const itemTime = new Date(d.timestamp).getTime();
+      return itemTime >= startTime && itemTime <= endTime;
+    });
+  }
+
   const now = Date.now();
   let ms = Infinity;
   if (range === 'minute') ms = 60 * 60 * 1000;
@@ -346,12 +366,27 @@ function filterData(range) {
   return historyData.filter((d) => range === 'all' || now - new Date(d.timestamp).getTime() <= ms);
 }
 
-function renderChart(range = 'all') {
-  const data = filterData(range);
+function renderChart(range = 'all', customRange = {}) {
+  const data = filterData(range, customRange);
+
+  if (chartInstance) chartInstance.destroy();
+
+  // Hiển thị thông báo nếu không có dữ liệu
+  const ctx = document.getElementById('tournamentChart').getContext('2d');
+  if (data.length === 0) {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.fillStyle = 'white';
+    ctx.font = '16px "M PLUS Rounded 1c"';
+    ctx.textAlign = 'center';
+    ctx.fillText('No data available for this range.', ctx.canvas.width / 2, ctx.canvas.height / 2);
+    chartInstance = null; // Đảm bảo không có biểu đồ cũ nào được giữ lại
+    return;
+  }
+
   const labels = data.map((d) => new Date(d.timestamp).toLocaleString());
   const values = data.map((d) => d.rewardBank);
-  if (chartInstance) chartInstance.destroy();
-  chartInstance = new Chart(document.getElementById('tournamentChart'), {
+
+  chartInstance = new Chart(ctx, {
     type: 'line',
     data: {
       labels: labels,
@@ -381,8 +416,18 @@ fetch('history.json')
   .then((data) => {
     historyData = data;
     renderChart('all');
-    document.querySelectorAll('#chart-filter button').forEach((btn) => {
-      btn.onclick = () => renderChart(btn.dataset.range);
+    // Gộp event listeners
+    document.getElementById('chart-filter').addEventListener('click', (event) => {
+      const target = event.target;
+      if (target.tagName !== 'BUTTON') return;
+
+      if (target.dataset.range) {
+        renderChart(target.dataset.range);
+      } else if (target.id === 'custom-range-btn') {
+        const start = document.getElementById('start-datetime').value;
+        const end = document.getElementById('end-datetime').value;
+        renderChart('custom', { start, end });
+      }
     });
   });
 
@@ -395,7 +440,7 @@ function getDeltaAt(history, nowIdx, msAgo) {
       return history[nowIdx].rewardBank - history[i].rewardBank;
     }
   }
-  return null; // Không đủ dữ liệu
+  return null; // Không tìm thấy
 }
 
 // Khi render bảng hoặc biểu đồ:
