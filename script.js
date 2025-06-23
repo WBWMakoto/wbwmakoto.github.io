@@ -456,17 +456,25 @@ function getSmartXTicksConfig(labels) {
   }
 }
 
+// Sửa lại thông báo lỗi trên canvas thành 2 dòng, căn giữa
+function drawNoDataMessage(ctx) {
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  ctx.fillStyle = 'white';
+  ctx.font = '17px "M PLUS Rounded 1c", Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Refresh the page to solve - 99.99% work.', ctx.canvas.width / 2, ctx.canvas.height / 2);
+}
+
+// --- SỬA renderChart ---
 function renderChart(range = 'all', customRange = {}) {
   const data = filterData(range, customRange);
-  if (chartInstance) chartInstance.destroy();
+  if (chartInstance) {
+    chartInstance.destroy();
+    chartInstance = null;
+  }
   const ctx = document.getElementById('tournamentChart').getContext('2d');
   if (data.length < 2) {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    ctx.fillStyle = 'white';
-    ctx.font = '16px "M PLUS Rounded 1c"';
-    ctx.textAlign = 'center';
-    ctx.fillText('No Data Available Or Unknown error (mostly). Refresh the page and filter again to solve the problem (99.99% work)', ctx.canvas.width / 2, ctx.canvas.height / 2);
-    chartInstance = null;
+    drawNoDataMessage(ctx);
     return;
   }
   const labels = data.map((d) => new Date(d.timestamp).toLocaleString());
@@ -568,15 +576,13 @@ let tradeVolumeChartInstance = null;
 // --- Hàm vẽ biểu đồ chung cho các trường ---
 function renderCustomChart(canvasId, chartInstanceRef, field, range = 'all', customRange = {}) {
   const data = filterData(range, customRange);
-  if (chartInstanceRef && chartInstanceRef.current) chartInstanceRef.current.destroy();
+  if (chartInstanceRef && chartInstanceRef.current) {
+    chartInstanceRef.current.destroy();
+    chartInstanceRef.current = null;
+  }
   const ctx = document.getElementById(canvasId).getContext('2d');
   if (!data.length || data.length < 2) {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    ctx.fillStyle = 'white';
-    ctx.font = '16px "M PLUS Rounded 1c"';
-    ctx.textAlign = 'center';
-    ctx.fillText('No Data Available Or Unknown error (mostly). Refresh the page and filter again to solve the problem (99.99% work)', ctx.canvas.width / 2, ctx.canvas.height / 2);
-    chartInstanceRef.current = null;
+    drawNoDataMessage(ctx);
     return;
   }
   const labels = data.map((d) => new Date(d.timestamp).toLocaleString());
