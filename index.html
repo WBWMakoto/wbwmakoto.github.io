@@ -98,14 +98,20 @@
                         </button>
                     </div>
                     <div class="filter-tips"
-                        style="margin-top:8px;text-align:left;font-size:0.97em;color:#b0eaff;line-height:1.5;">
-                        <div><b>TIP:</b> If you leave the first input empty, it will use the earliest available data:
-                            <span id="first-data-time" style="color:#00f2ea;font-weight:600;">[loading...]</span></div>
-                        <div><b>TIP:</b> If you leave the second input empty, it will use the most recent data: <span
-                                id="last-data-time" style="color:#00f2ea;font-weight:600;">[loading...]</span></div>
-                        <div style="color:#c0c0c0;font-size:0.96em;margin-top:2px;">You can save time by leaving either
-                            input blank (the default will be used as above). You can also use your keyboard to quickly
-                            enter day, month, year, hour, or minute.</div>
+                        style="margin:4px 0 0 0;padding:0;text-align:left;font-size:0.97em;color:#b0eaff;line-height:1.4;">
+                        <div>
+                            <span style="display:inline-block; min-width:320px;">Leave <b>start</b> empty for auto
+                                select earliest record:</span><span id="first-data-time"
+                                style="color:#00f2ea;font-weight:600;"></span>
+                        </div>
+                        <div>
+                            <span style="display:inline-block; min-width:320px;">Leave <b>end</b> empty for auto select
+                                latest record:</span><span id="last-data-time"
+                                style="color:#00f2ea;font-weight:600;"></span>
+                        </div>
+                        <div style="color:#c0c0c0;font-size:0.93em;margin-top:1px;"><b style="color:#ff5252;">TIPS:</b>
+                            You can leave either input blank to use the default above. Keyboard shortcuts for date/time
+                            are supported (if you enter only time, today will be used by default).</div>
                     </div>
                 </div>
                 <div class="chart-title"
