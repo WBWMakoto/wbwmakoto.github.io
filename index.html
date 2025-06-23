@@ -95,13 +95,14 @@
                         <input type="datetime-local" id="end-datetime"
                             style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; background-color: #333; color: white;">
                         <button id="custom-range-btn"
-                            style="padding: 5px 10px; border-radius: 5px; border: none; background-color: #4CAF50; color: white; margin-left: 10px; cursor: pointer;">Filter</button>
+                            style="padding: 5px 10px; border-radius: 5px; border: none; background-color: #4CAF50; color: white; margin-left: 10px; cursor: pointer;">Filter
+                            (apply to all graphs)</button>
                     </div>
                 </div>
                 <button id="refresh-chart-btn"
                     style="margin: 8px 0 12px 0; padding: 6px 18px; border-radius: 6px; background: #00f2ea; color: #222; font-weight: 600; border: none; cursor: pointer;">Refresh
                     Chart</button>
-                <div id="chart-container">
+                <div id="chart-container" class="chart-bg">
                     <canvas id="tournamentChart" height="220"></canvas>
                 </div>
                 <div class="chart-section">
@@ -113,7 +114,7 @@
                         <button data-range="day">Last 7 days</button>
                         <button data-range="week">Last 30 days</button>
                     </div>
-                    <div id="chart-container-live-token">
+                    <div id="chart-container-live-token" class="chart-bg">
                         <canvas id="liveTokenChart" height="220"></canvas>
                     </div>
                 </div>
@@ -126,7 +127,7 @@
                         <button data-range="day">Last 7 days</button>
                         <button data-range="week">Last 30 days</button>
                     </div>
-                    <div id="chart-container-online-players">
+                    <div id="chart-container-online-players" class="chart-bg">
                         <canvas id="onlinePlayersChart" height="220"></canvas>
                     </div>
                 </div>
@@ -139,7 +140,7 @@
                         <button data-range="day">Last 7 days</button>
                         <button data-range="week">Last 30 days</button>
                     </div>
-                    <div id="chart-container-trade-volume">
+                    <div id="chart-container-trade-volume" class="chart-bg">
                         <canvas id="tradeVolumeChart" height="220"></canvas>
                     </div>
                 </div>

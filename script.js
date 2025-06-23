@@ -205,6 +205,23 @@ document.addEventListener('DOMContentLoaded', () => {
       renderCustomChart('tradeVolumeChart', { current: tradeVolumeChartInstance }, 'tournamentTradeVolume', e.target.dataset.range);
     }
   });
+
+  document.getElementById('chart-filter').addEventListener('click', (event) => {
+    const target = event.target;
+    if (target.tagName !== 'BUTTON') return;
+
+    if (target.dataset.range) {
+      renderChart(target.dataset.range);
+    } else if (target.id === 'custom-range-btn') {
+      const start = document.getElementById('start-datetime').value;
+      const end = document.getElementById('end-datetime').value;
+      renderChart('custom', { start, end });
+      // Đồng bộ filter custom cho cả 3 biểu đồ phụ
+      renderCustomChart('liveTokenChart', { current: liveTokenChartInstance }, 'liveTokenSupply', 'custom', { start, end });
+      renderCustomChart('onlinePlayersChart', { current: onlinePlayersChartInstance }, 'onlinePlayers', 'custom', { start, end });
+      renderCustomChart('tradeVolumeChart', { current: tradeVolumeChartInstance }, 'tournamentTradeVolume', 'custom', { start, end });
+    }
+  });
 });
 
 function handleExcelUpload(event) {
@@ -457,17 +474,39 @@ function renderChart(range = 'all', customRange = {}) {
           label: 'Tournament Bank',
           data: values,
           borderColor: '#00f2ea',
-          backgroundColor: 'rgba(0,242,234,0.1)',
+          backgroundColor: 'rgba(0,242,234,0.13)',
           fill: true,
           tension: 0.2,
+          pointBackgroundColor: '#fff',
+          pointBorderColor: '#00f2ea',
+          pointRadius: 4,
+          pointHoverRadius: 7,
+          pointBorderWidth: 2,
         },
       ],
     },
     options: {
-      plugins: { legend: { labels: { color: '#00f2ea' } } },
+      plugins: {
+        legend: { labels: { color: '#00f2ea', font: { weight: 'bold', size: 15 } } },
+        tooltip: {
+          enabled: true,
+          backgroundColor: '#222',
+          titleColor: '#00f2ea',
+          bodyColor: '#fff',
+          borderColor: '#00f2ea',
+          borderWidth: 2,
+          titleFont: { weight: 'bold', size: 15 },
+          bodyFont: { size: 15 },
+          callbacks: {
+            label: function (context) {
+              return context.dataset.label + ': ' + context.formattedValue;
+            },
+          },
+        },
+      },
       scales: {
-        x: { ticks: { color: '#fff' } },
-        y: { ticks: { color: '#fff' } },
+        x: { ticks: { color: '#fff', font: { size: 13 } } },
+        y: { ticks: { color: '#fff', font: { size: 13 } } },
       },
     },
   });
@@ -489,6 +528,10 @@ fetch('history.json')
         const start = document.getElementById('start-datetime').value;
         const end = document.getElementById('end-datetime').value;
         renderChart('custom', { start, end });
+        // Đồng bộ filter custom cho cả 3 biểu đồ phụ
+        renderCustomChart('liveTokenChart', { current: liveTokenChartInstance }, 'liveTokenSupply', 'custom', { start, end });
+        renderCustomChart('onlinePlayersChart', { current: onlinePlayersChartInstance }, 'onlinePlayers', 'custom', { start, end });
+        renderCustomChart('tradeVolumeChart', { current: tradeVolumeChartInstance }, 'tournamentTradeVolume', 'custom', { start, end });
       }
     });
     // Vẽ các biểu đồ phụ lần đầu
@@ -529,8 +572,8 @@ let onlinePlayersChartInstance = null;
 let tradeVolumeChartInstance = null;
 
 // --- Hàm vẽ biểu đồ chung cho các trường ---
-function renderCustomChart(canvasId, chartInstanceRef, field, range = 'all') {
-  const data = filterData(range);
+function renderCustomChart(canvasId, chartInstanceRef, field, range = 'all', customRange = {}) {
+  const data = filterData(range, customRange);
   if (chartInstanceRef && chartInstanceRef.current) chartInstanceRef.current.destroy();
   const ctx = document.getElementById(canvasId).getContext('2d');
   if (!data.length) {
@@ -544,26 +587,59 @@ function renderCustomChart(canvasId, chartInstanceRef, field, range = 'all') {
   }
   const labels = data.map((d) => new Date(d.timestamp).toLocaleString());
   const values = data.map((d) => d[field]);
+  let color, label;
+  if (field === 'liveTokenSupply') {
+    color = '#ffb300';
+    label = 'Live Token Supply';
+  } else if (field === 'onlinePlayers') {
+    color = '#00e676';
+    label = 'Online Players';
+  } else {
+    color = '#00bcd4';
+    label = 'Tournament Trade Volume (PX)';
+  }
   chartInstanceRef.current = new Chart(ctx, {
     type: 'line',
     data: {
       labels: labels,
       datasets: [
         {
-          label: field === 'liveTokenSupply' ? 'Live Token Supply' : field === 'onlinePlayers' ? 'Online Players' : 'Tournament Trade Volume (PX)',
+          label: label,
           data: values,
-          borderColor: field === 'liveTokenSupply' ? '#ffb300' : field === 'onlinePlayers' ? '#00e676' : '#00bcd4',
-          backgroundColor: 'rgba(0,242,234,0.1)',
+          borderColor: color,
+          backgroundColor: 'rgba(0,242,234,0.13)',
           fill: true,
           tension: 0.2,
+          pointBackgroundColor: '#fff',
+          pointBorderColor: color,
+          pointRadius: 4,
+          pointHoverRadius: 7,
+          pointBorderWidth: 2,
         },
       ],
     },
     options: {
-      plugins: { legend: { labels: { color: '#00f2ea' } } },
+      plugins: {
+        legend: { labels: { color: color, font: { weight: 'bold', size: 15 } } },
+        tooltip: {
+          enabled: true,
+          backgroundColor: '#222',
+          titleColor: color,
+          bodyColor: '#fff',
+          borderColor: color,
+          borderWidth: 2,
+          titleFont: { weight: 'bold', size: 15 },
+          bodyFont: { size: 15 },
+          callbacks: {
+            label: function (context) {
+              return context.dataset.label + ': ' + context.formattedValue;
+            },
+          },
+        },
+      },
       scales: {
-        x: { ticks: { color: '#fff' } },
-        y: { ticks: { color: '#fff' } },
+        x: { ticks: { color: '#fff', font: { size: 13 } } },
+        y: { ticks: { color: '#fff', font: { size: 13 } } },
       },
     },
   });
