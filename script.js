@@ -164,33 +164,23 @@ function googleTranslateElementInit() {
   );
 }
 
-// Chạy lần đầu khi tải trang
+// --- ĐẢM BẢO applyRangeToAllCharts chỉ gọi sau khi DOM ready và historyData đã load xong ---
+let historyLoaded = false;
+let domLoaded = false;
+function tryAutoApplyRange() {
+  if (historyLoaded && domLoaded) {
+    applyRangeToAllCharts();
+  }
+}
 document.addEventListener('DOMContentLoaded', () => {
-  fetchDataAndUpdate();
-  setInterval(fetchDataAndUpdate, 10000);
+  domLoaded = true;
+  tryAutoApplyRange();
 
   // Thêm sự kiện cho upload Excel
   const excelInput = document.getElementById('excel-file-input');
   if (excelInput) {
     excelInput.addEventListener('change', handleExcelUpload);
   }
-
-  // --- FILTER RANGE DUY NHẤT: KHI BẤM 'APPLY TO ALL GRAPHS' HOẶC LOAD TRANG, ĐỒNG BỘ 4 CHART ---
-  function applyRangeToAllCharts() {
-    let start = document.getElementById('start-datetime').value;
-    let end = document.getElementById('end-datetime').value;
-    let data = window.historyData || [];
-    if (data.length === 0 && typeof historyData !== 'undefined') data = historyData;
-    if (!start && data.length > 0) start = data[0].timestamp;
-    if (!end && data.length > 0) end = data[data.length - 1].timestamp;
-    renderChart('custom', { start, end });
-    renderCustomChart('liveTokenChart', { current: liveTokenChartInstance }, 'liveTokenSupply', 'custom', { start, end });
-    renderCustomChart('onlinePlayersChart', { current: onlinePlayersChartInstance }, 'onlinePlayers', 'custom', { start, end });
-    renderCustomChart('tradeVolumeChart', { current: tradeVolumeChartInstance }, 'tournamentTradeVolume', 'custom', { start, end });
-  }
-  document.getElementById('custom-range-btn').addEventListener('click', applyRangeToAllCharts);
-  // Khi load trang, tự động apply range mặc định
-  window.addEventListener('DOMContentLoaded', applyRangeToAllCharts);
 });
 
 function handleExcelUpload(event) {
@@ -539,7 +529,8 @@ fetch('history.json')
   .then((data) => {
     historyData = data;
     window.historyData = data;
-    applyRangeToAllCharts(); // Đảm bảo 4 chart luôn có dữ liệu mặc định khi vào trang
+    historyLoaded = true;
+    tryAutoApplyRange();
   });
 
 function getDeltaAt(history, nowIdx, msAgo) {

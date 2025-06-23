@@ -81,35 +81,28 @@
             <h2><img src="images/notpixellogov1.png" class="inline-logo" alt="PX Logo"> Details</h2>
             <div id="auto-table-container"></div>
             <div class="pixel-info">
-                <!-- Đưa filter custom range và chú thích lên trên -->
-                <div style="text-align:center; margin-bottom: 18px;">
-                    <div style="color:#00f2ea; font-size:1.05em; font-weight:600; margin-bottom:2px;">
+                <!-- Khối chú thích filter đẹp, chuyên nghiệp -->
+                <div class="custom-hint-block">
+                    <div class="custom-hint-title">
                         Recommend CTRL + F5 (PC, Laptop) và Refresh (Phone) to matching newest data "sooner, more real
                         time"
                     </div>
-                    <div style="color:#aaa; font-size:0.98em; margin-bottom:2px;">
+                    <div class="custom-hint-desc">
                         You can view <b>"custom range"</b> by selecting begin and end time in the below blocks
                     </div>
-                    <div style="color:#aaa; font-size:0.97em; margin-bottom:10px;">
-                        (TIPS:<br>
-                        - You can left the first block if you want to select from the firsts dataframe and left the
-                        second block for ending at the newest dataframe.<br>
-                        - You can also click to Apply to all graphs to refresh the data (when on default mode / data)
-                        but maybe it is not working so I recommend you refresh the page above )
+                    <div class="custom-hint-tips">
+                        <span class="tips-label">TIPS:</span>
+                        <ul>
+                            <li>You can leave the first block empty if you want to select from the first dataframe, and
+                                leave the second block empty for ending at the newest dataframe.</li>
+                            <li>You can also click Apply to all graphs to refresh the data (when on default mode /
+                                data), but maybe it is not working so I recommend you refresh the page above.</li>
+                        </ul>
                     </div>
-                    <div
-                        style="color:#ff4444; font-size:1.05em; font-weight:700; margin-bottom:10px; text-shadow:0 1px 6px #000;">
-                        Any abnormality (if you think it is abnormal) or error, please refresh the page and the problem
-                        will be solved. Even error front and fixed like that
+                    <div class="custom-hint-error">
+                        Any abnormality or error? Please refresh the page and the problem will be solved. Even front-end
+                        errors can be fixed like that.
                     </div>
-                    <input type="datetime-local" id="start-datetime"
-                        style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; background-color: #333; color: white; margin-right: 8px;">
-                    <span style="color: white; margin: 0 10px; font-weight:600;">to</span>
-                    <input type="datetime-local" id="end-datetime"
-                        style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; background-color: #333; color: white; margin-left: 8px;">
-                    <button id="custom-range-btn"
-                        style="padding: 5px 10px; border-radius: 5px; border: none; background-color: #4CAF50; color: white; margin-left: 10px; cursor: pointer; font-weight:600;">Apply
-                        to all graphs</button>
                 </div>
                 <!-- Biểu đồ Tournament Bank -->
                 <div class="chart-title"
