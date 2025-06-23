@@ -139,5 +139,23 @@
   {
     "timestamp": "2025-06-23T10:16:46.556Z",
     "rewardBank": 7201464.725
+  },
+  {
+    "timestamp": "2025-06-23T10:42:28.016Z",
+    "rewardBank": 7215550.325,
+    "burnBank": 3070446,
+    "totalBank": 10285996.325,
+    "liveTokenSupply": 241829554,
+    "onlinePlayers": null,
+    "tournamentTradeVolume": 60481658
+  },
+  {
+    "timestamp": "2025-06-23T10:54:23.281Z",
+    "rewardBank": 7220926.875,
+    "burnBank": 3072734,
+    "totalBank": 10293660.875,
+    "liveTokenSupply": 241827266,
+    "onlinePlayers": null,
+    "tournamentTradeVolume": 60526726
   }
 ]
