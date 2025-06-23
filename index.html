@@ -81,30 +81,33 @@
             <h2><img src="images/notpixellogov1.png" class="inline-logo" alt="PX Logo"> Details</h2>
             <div id="auto-table-container"></div>
             <div class="pixel-info">
-                <!-- Khối chú thích filter đẹp, chuyên nghiệp -->
-                <div class="custom-hint-block">
-                    <div class="custom-hint-title">
-                        Recommend CTRL + F5 (PC, Laptop) và Refresh (Phone) to matching newest data "sooner, more real
-                        time"
+                <!-- Biểu đồ Tournament Bank -->
+                <div id="chart-filter" style="margin-bottom: 10px; text-align:center;">
+                    <div style="margin-top: 10px;">
+                        <input type="datetime-local" id="start-datetime"
+                            style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; background-color: #333; color: white;">
+                        <span style="color: white; margin: 0 10px;">to</span>
+                        <input type="datetime-local" id="end-datetime"
+                            style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; background-color: #333; color: white;">
+                        <button id="custom-range-btn"
+                            style="padding: 5px 10px; border-radius: 5px; border: none; background-color: #4CAF50; color: white; margin-left: 10px; cursor: pointer;">Filter
+                            (apply to all graphs)</button>
+                        <button id="refresh-btn" title="Làm mới dữ liệu về trạng thái gốc"
+                            style="padding: 5px 10px; border-radius: 5px; border: none; background-color: #2196F3; color: white; margin-left: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                            <span style="font-size:1.2em;">&#x21bb;</span> Refresh to default (original)
+                        </button>
                     </div>
-                    <div class="custom-hint-desc">
-                        You can view <b>"custom range"</b> by selecting begin and end time in the below blocks
-                    </div>
-                    <div class="custom-hint-tips">
-                        <span class="tips-label">TIPS:</span>
-                        <ul>
-                            <li>You can leave the first block empty if you want to select from the first dataframe, and
-                                leave the second block empty for ending at the newest dataframe.</li>
-                            <li>You can also click Apply to all graphs to refresh the data (when on default mode /
-                                data), but maybe it is not working so I recommend you refresh the page above.</li>
-                        </ul>
-                    </div>
-                    <div class="custom-hint-error">
-                        Any abnormality or error? Please refresh the page and the problem will be solved. Even front-end
-                        errors can be fixed like that.
+                    <div class="filter-tips"
+                        style="margin-top:8px;text-align:left;font-size:0.97em;color:#b0eaff;line-height:1.5;">
+                        <div><b>TIP:</b> If you leave the first input empty, it will use the earliest available data:
+                            <span id="first-data-time" style="color:#00f2ea;font-weight:600;">[loading...]</span></div>
+                        <div><b>TIP:</b> If you leave the second input empty, it will use the most recent data: <span
+                                id="last-data-time" style="color:#00f2ea;font-weight:600;">[loading...]</span></div>
+                        <div style="color:#c0c0c0;font-size:0.96em;margin-top:2px;">You can save time by leaving either
+                            input blank (the default will be used as above). You can also use your keyboard to quickly
+                            enter day, month, year, hour, or minute.</div>
                     </div>
                 </div>
-                <!-- Biểu đồ Tournament Bank -->
                 <div class="chart-title"
                     style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:2px;">
                     <img src="images/tournamentbanklogo.png" alt="Tournament Bank Logo" class="inline-logo">
@@ -124,6 +127,9 @@
                         <img src="images/notpixellogov1.png" alt="Live Token Supply Logo" class="inline-logo">
                     </div>
                     <h4 style="color:#00f2ea;text-align:center;margin:18px 0 6px 0;display:none;">Live Token Supply</h4>
+                    <div class="chart-filter" id="chart-filter-live-token">
+                        <!-- Đã xoá các nút preset filter ở đây -->
+                    </div>
                     <div id="chart-container-live-token" class="chart-bg">
                         <canvas id="liveTokenChart" height="220"></canvas>
                     </div>
@@ -138,6 +144,9 @@
                     </div>
                     <h4 style="color:#00f2ea;text-align:center;margin:18px 0 6px 0;display:none;">App Online Players
                     </h4>
+                    <div class="chart-filter" id="chart-filter-online-players">
+                        <!-- Đã xoá các nút preset filter ở đây -->
+                    </div>
                     <div id="chart-container-online-players" class="chart-bg">
                         <canvas id="onlinePlayersChart" height="220"></canvas>
                     </div>
@@ -152,6 +161,9 @@
                     </div>
                     <h4 style="color:#00f2ea;text-align:center;margin:18px 0 6px 0;display:none;">Tournament PX Trade
                         Volume</h4>
+                    <div class="chart-filter" id="chart-filter-trade-volume">
+                        <!-- Đã xoá các nút preset filter ở đây -->
+                    </div>
                     <div id="chart-container-trade-volume" class="chart-bg">
                         <canvas id="tradeVolumeChart" height="220"></canvas>
                     </div>

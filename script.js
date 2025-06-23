@@ -5,20 +5,27 @@ const API_URLS = {
   online: 'https://notpixel.org/api/v1/history/online/stats',
 };
 
+// --- BIẾN TOÀN CỤC ---
+let historyData = [];
+window.tournamentChartInstanceRef = { current: null };
+window.liveTokenChartInstanceRef = { current: null };
+window.onlinePlayersChartInstanceRef = { current: null };
+window.tradeVolumeChartInstanceRef = { current: null };
+let prevRowValues = null;
+
 // Hàm để định dạng số cho dễ đọc (ví dụ: 1,000,000)
 function formatNumber(num) {
   if (typeof num !== 'number' || isNaN(num)) return 'Not Available';
   return num.toLocaleString('en-US');
 }
 
-// Hàm chính để lấy và cập nhật dữ liệu
+// Hàm chính để lấy và cập nhật dữ liệu từ API (mỗi 10s)
 async function fetchDataAndUpdate() {
   const updateStatusEl = document.getElementById('update-status');
   updateStatusEl.textContent = 'Updating data...';
 
   try {
     const responses = await Promise.all([fetch(API_URLS.info), fetch(API_URLS.filter), fetch(API_URLS.online)]);
-
     const [infoData, filterData, onlineData] = await Promise.all(responses.map((res) => (res.ok ? res.json() : null)));
 
     updateHeaderStats(infoData, onlineData);
@@ -32,41 +39,34 @@ async function fetchDataAndUpdate() {
   }
 }
 
-// Hàm cập nhật 5 chỉ số ở đầu trang
+// Hàm cập nhật 6 chỉ số ở đầu trang
 function updateHeaderStats(infoData, onlineData) {
-  // Tournament Bank
   const rewardBank = infoData?.rewardBank;
   const tournamentBank = typeof rewardBank === 'number' ? rewardBank : undefined;
 
-  // Burn Bank: API hoặc fallback
   let burnBank = infoData?.burnBank;
   if (typeof burnBank !== 'number' && typeof tournamentBank === 'number') {
     burnBank = Math.floor(tournamentBank / 2.35);
   }
 
-  // Total Bank: API hoặc fallback
   let totalBank = infoData?.totalBank;
   if (typeof totalBank !== 'number' && typeof tournamentBank === 'number' && typeof burnBank === 'number') {
     totalBank = tournamentBank + burnBank;
   }
 
-  // Live Token Supply: API hoặc fallback
   let liveTokenSupply = infoData?.liveTokenSupply;
   if (typeof liveTokenSupply !== 'number' && typeof burnBank === 'number') {
     liveTokenSupply = 245000000 - burnBank - 100000;
   }
 
-  // Online Players: API hoặc fallback
   let onlinePlayers = onlineData?.current_visitors;
   if (typeof onlinePlayers !== 'number') onlinePlayers = undefined;
 
-  // Tournament Trade Volume: API hoặc fallback
   let tournamentTradeVolume = infoData?.tournamentTradeVolume;
   if (typeof tournamentTradeVolume !== 'number' && typeof totalBank === 'number') {
     tournamentTradeVolume = Math.round(1024 * 1024 + totalBank * 5.88);
   }
 
-  // Cập nhật UI
   document.getElementById('tournament-bank').textContent = formatNumber(Math.round(tournamentBank));
   document.getElementById('burn-bank').textContent = formatNumber(Math.round(burnBank));
   document.getElementById('total-bank').textContent = formatNumber(Math.round(totalBank));
@@ -74,14 +74,12 @@ function updateHeaderStats(infoData, onlineData) {
   document.getElementById('online-players').textContent = formatNumber(onlinePlayers);
   document.getElementById('tournament-trade-volume').textContent = formatNumber(Math.round(tournamentTradeVolume));
 
-  // Gọi hàm renderAutoTable
   renderAutoTable(tournamentBank);
 }
 
-// Hàm cập nhật chi tiết Pixel (Đã viết lại)
+// Hàm cập nhật chi tiết Pixel
 function updatePixelDetails(infoData, filterData) {
-  // 1. Cập nhật Pixel Area
-  const pixelArea = 1024 * 1024; // Đã mở full map, hiển thị 100%
+  const pixelArea = 1024 * 1024;
   const maxPixelArea = 1024 * 1024;
   document.getElementById('pixel-area-percentage').textContent = `${((pixelArea / maxPixelArea) * 100).toFixed(0)}%`;
 
@@ -94,9 +92,8 @@ function updatePixelDetails(infoData, filterData) {
     document.getElementById('pixel-locked-percentage').textContent = `${((locked / pixelArea) * 100).toFixed(2)}%`;
   }
 
-  // 2. Cập nhật bảng giá Pixel Buy Price (Đã cải thiện)
   const tableBody = document.querySelector('#pixel-price-table tbody');
-  tableBody.innerHTML = ''; // Xóa dữ liệu cũ
+  tableBody.innerHTML = '';
   const priceAvailability = filterData?.priceAvailability;
 
   if (priceAvailability && Object.keys(priceAvailability).length > 0) {
@@ -117,13 +114,9 @@ function updatePixelDetails(infoData, filterData) {
     });
   } else {
     const row = tableBody.insertRow();
-    const cell = row.insertCell();
-    cell.colSpan = 3;
-    cell.textContent = 'No any price data not available. See Q&A #1 for more details.';
-    cell.style.textAlign = 'center';
+    row.innerHTML = `<td colspan="3" style="text-align: center;">No any price data not available. See Q&A #1 for more details.</td>`;
   }
 
-  // 3. Cập nhật Most Expensive Pixel (Sửa lỗi quan trọng)
   const mostExpensive = infoData?.mostExpensivePixel?.metaData;
   if (mostExpensive) {
     const { x, y, nextPrice, isAvailable } = mostExpensive;
@@ -132,7 +125,6 @@ function updatePixelDetails(infoData, filterData) {
     document.getElementById('owner-buy-price').textContent = formatNumber(nextPrice / 2);
     document.getElementById('current-price').textContent = formatNumber(nextPrice);
 
-    // **SỬA LỖI QUAN TRỌNG: Dùng innerHTML để chèn logo**
     const statusEl = document.getElementById('pixel-status');
     if (isAvailable) {
       statusEl.innerHTML = `The pixel is not lockable & you can buy it if you are whale enough to pay ${formatNumber(
@@ -142,7 +134,6 @@ function updatePixelDetails(infoData, filterData) {
       statusEl.innerHTML = `The pixel is lockable and you can't buy it, LOL maybe a whale is acting, stay ALERT xD`;
     }
   } else {
-    // Reset nếu không có data
     document.getElementById('most-expensive-coords').textContent = '(N/A, N/A)';
     document.getElementById('most-expensive-link').href = '#';
     document.getElementById('owner-buy-price').textContent = 'N/A';
@@ -151,179 +142,173 @@ function updatePixelDetails(infoData, filterData) {
   }
 }
 
-// Khởi tạo Google Translate
-function googleTranslateElementInit() {
-  new google.translate.TranslateElement(
-    {
-      pageLanguage: 'en',
-      includedLanguages: 'en,ja,vi,ko,tr,ar,ru',
-      layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-      autoDisplay: false,
-    },
-    'google_translate_element'
-  );
-}
+// --- PHẦN XỬ LÝ BIỂU ĐỒ ---
 
-// --- ĐẢM BẢO applyRangeToAllCharts chỉ gọi sau khi DOM ready và historyData đã load xong ---
-let historyLoaded = false;
-let domLoaded = false;
-function tryAutoApplyRange() {
-  if (historyLoaded && domLoaded) {
-    applyRangeToAllCharts();
-  }
-}
-document.addEventListener('DOMContentLoaded', () => {
-  domLoaded = true;
-  tryAutoApplyRange();
+function filterData(range, customRange = {}) {
+  if (!historyData || historyData.length === 0) return [];
 
-  // Thêm sự kiện cho upload Excel
-  const excelInput = document.getElementById('excel-file-input');
-  if (excelInput) {
-    excelInput.addEventListener('change', handleExcelUpload);
-  }
-});
+  if (range === 'custom') {
+    let { start, end } = customRange;
+    const minTime = new Date(historyData[0].timestamp).getTime();
+    const maxTime = new Date(historyData[historyData.length - 1].timestamp).getTime();
+    let startTime = new Date(start).getTime();
+    let endTime = new Date(end).getTime();
 
-function handleExcelUpload(event) {
-  const file = event.target.files[0];
-  const statusEl = document.getElementById('excel-upload-status');
-  if (!file) {
-    statusEl.textContent = 'No file selected.';
-    return;
-  }
-  statusEl.textContent = 'Đang đọc file...';
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    const data = new Uint8Array(e.target.result);
-    const workbook = XLSX.read(data, { type: 'array' });
-    // Lấy sheet đầu tiên
-    const firstSheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[firstSheetName];
-    // Chuyển sheet thành array object
-    const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
-    if (jsonData.length === 0) {
-      statusEl.textContent = 'Sheet không có dữ liệu.';
-      return;
-    }
-    // Tính toán lại các cột nếu cần
-    const processedData = processExcelData(jsonData);
-    renderExcelTable(processedData);
-    statusEl.textContent = 'Đã tải dữ liệu.';
-  };
-  reader.onerror = function () {
-    statusEl.textContent = 'Lỗi khi đọc file.';
-  };
-  reader.readAsArrayBuffer(file);
-}
+    if (isNaN(startTime) || startTime < minTime) startTime = minTime;
+    if (isNaN(endTime) || endTime > maxTime) endTime = maxTime;
+    if (startTime >= endTime) return [];
 
-// Hàm xử lý dữ liệu: Tournament Bank = rewardBank, các cột còn lại giữ nguyên hoặc tính tỷ trọng nếu có
-function processExcelData(data) {
-  // Nếu có cột 'rewardBank', tạo cột 'Tournament Bank' = rewardBank
-  // Nếu đã có cột 'Tournament Bank', sẽ ghi đè bằng rewardBank
-  return data.map((row) => {
-    if ('rewardBank' in row) {
-      row['Tournament Bank'] = row['rewardBank'];
-    }
-    // Nếu bạn muốn tính thêm tỷ trọng các cột khác, có thể bổ sung ở đây
-    // Ví dụ: row['Tỷ trọng'] = row['rewardBank'] / tổng rewardBank
-    return row;
-  });
-}
-
-// Hàm hiển thị bảng dữ liệu ra HTML
-function renderExcelTable(data) {
-  const container = document.getElementById('excel-table-container');
-  if (!data || data.length === 0) {
-    container.innerHTML = '<p>No data to display.</p>';
-    return;
-  }
-  // Tạo bảng
-  let html = '<div style="overflow-x:auto"><table class="excel-table"><thead><tr>';
-  // Lấy tất cả các cột
-  const columns = Object.keys(data[0]);
-  columns.forEach((col) => {
-    html += `<th>${col}</th>`;
-  });
-  html += '</tr></thead><tbody>';
-  data.forEach((row) => {
-    html += '<tr>';
-    columns.forEach((col) => {
-      html += `<td>${row[col]}</td>`;
+    return historyData.filter((d) => {
+      const itemTime = new Date(d.timestamp).getTime();
+      return itemTime >= startTime && itemTime <= endTime;
     });
-    html += '</tr>';
-  });
-  html += '</tbody></table></div>';
-  container.innerHTML = html;
+  }
+
+  const now = Date.now();
+  let ms;
+  switch (range) {
+    case 'hour':
+      ms = 60 * 60 * 1000;
+      break;
+    case 'day':
+      ms = 24 * 60 * 60 * 1000;
+      break;
+    case 'week':
+      ms = 7 * 24 * 60 * 60 * 1000;
+      break;
+    case 'month':
+      ms = 30 * 24 * 60 * 60 * 1000;
+      break;
+    case 'all':
+    default:
+      return historyData;
+  }
+  return historyData.filter((d) => now - new Date(d.timestamp).getTime() <= ms);
 }
 
-// Lưu giá trị cũ của các chỉ số để so sánh tăng/giảm
-let prevRowValues = null;
+function drawNoDataMessage(ctx) {
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  ctx.fillStyle = 'white';
+  ctx.font = '16px "M PLUS Rounded 1c"';
+  ctx.textAlign = 'center';
+  ctx.fillText('Error/No data - Refresh to solve ', ctx.canvas.width / 2, ctx.canvas.height / 2);
+}
+
+function renderChartGeneric(canvasId, chartInstanceRef, field, label, color, range = 'all', customRange = {}) {
+  const data = filterData(range, customRange);
+  const instance = window[chartInstanceRef];
+  if (instance.current) instance.current.destroy();
+
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  if (!data || data.length < 2) {
+    drawNoDataMessage(ctx);
+    instance.current = null;
+    return;
+  }
+
+  const labels = data.map((d) => new Date(d.timestamp).toLocaleString());
+  const values = data.map((d) => d[field]);
+
+  instance.current = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label,
+          data: values,
+          borderColor: color,
+          backgroundColor: color + '22',
+          fill: true,
+          tension: 0.2,
+          pointBackgroundColor: '#fff',
+          pointBorderColor: color,
+          pointRadius: 4,
+          pointHoverRadius: 7,
+          pointBorderWidth: 2,
+        },
+      ],
+    },
+    options: {
+      maintainAspectRatio: false,
+      responsive: true,
+      plugins: {
+        legend: { labels: { color, font: { weight: 'bold', size: 15, family: 'M PLUS Rounded 1c' } } },
+        tooltip: {
+          enabled: true,
+          backgroundColor: '#222',
+          titleColor: color,
+          bodyColor: '#fff',
+          borderColor: color,
+          borderWidth: 2,
+          titleFont: { weight: 'bold', size: 15, family: 'M PLUS Rounded 1c' },
+          bodyFont: { size: 15, family: 'M PLUS Rounded 1c' },
+          padding: 10,
+          callbacks: {
+            label: (context) => `${label}: ${context.formattedValue}`,
+          },
+        },
+      },
+      layout: { padding: 10 },
+      scales: {
+        x: { ticks: { color: '#fff', font: { size: 13, family: 'M PLUS Rounded 1c' }, maxRotation: 30, autoSkip: true, maxTicksLimit: 6, padding: 6 } },
+        y: { ticks: { color: '#fff', font: { size: 13, family: 'M PLUS Rounded 1c' }, padding: 6 } },
+      },
+    },
+  });
+}
+
+function applyRangeToAllCharts(range = 'all', customRange = {}) {
+  renderChartGeneric('tournamentChart', 'tournamentChartInstanceRef', 'rewardBank', 'Tournament Bank', '#00f2ea', range, customRange);
+  renderChartGeneric('liveTokenChart', 'liveTokenChartInstanceRef', 'liveTokenSupply', 'Live Token Supply', '#ffb300', range, customRange);
+  renderChartGeneric('onlinePlayersChart', 'onlinePlayersChartInstanceRef', 'onlinePlayers', 'App Online Players', '#00e676', range, customRange);
+  renderChartGeneric('tradeVolumeChart', 'tradeVolumeChartInstanceRef', 'tournamentTradeVolume', 'Tournament PX Trade Volume', '#00bcd4', range, customRange);
+}
+
+// --- CÁC HÀM TIỆN ÍCH KHÁC (GIỮ NGUYÊN) ---
 
 function renderAutoTable(rewardBank) {
   const container = document.getElementById('auto-table-container');
   if (!container) return;
   if (typeof rewardBank !== 'number' || isNaN(rewardBank)) {
-    container.innerHTML = `<p>
-        If you see this, it means the Not Pixel team has closed all their data, and there is nothing I can do about it.<br>
-        Honestly, I am still happy even if that happens, because this project is a special memory for me.<br>
-        It brings me back to the 2018 era, before I even started studying at Tokyo University, when I created this with my Vietnamese brother, who also helped me host this website.<br>
-        This is not the end—many ideas are still waiting for me to realize, and you can contact <b>@mikaakabano</b> to suggest what I should do next.<br>
-        Play Not Pixel to support them (and me!) by clicking 
-        <a href="https://t.me/notpixel/app?startapp=f5822071900_s577266" target="_blank">here</a>.
-      </p>`;
+    container.innerHTML = `<p>Data is currently unavailable. Please check back later.</p>`;
     return;
   }
-  // Các tỷ lệ phần trăm
-  const squad_bank_percentage = 0.39;
-  const rank_1_squad_reward_percentage = 0.03483;
-  const rank_16_squad_reward_percentage = 0.01613;
-  const first_buy_1px_bank_percentage = 0.3;
-  const px_holder_bank_percentage = 0.2;
-  const buy_final_bank_percentage = 0.1;
-  const most_expensive_pixel_bank_percentage = 0.01;
-
-  // Các tỷ lệ thực tế từ mẫu (Tournament Bank = 7,160,341)
-  const Top1FromTop1Squad_ratio = 8367 / 7160341;
-  const Top64FromTop1Squad_ratio = 2857 / 7160341;
-  const Top1FromTop16Squad_ratio = 3185 / 7160341;
-  const Top64FromTop16Squad_ratio = 1087 / 7160341;
-
-  // Các giá trị Bank
-  const tournamentBank = Math.round(rewardBank);
-  const squadBank = Math.round(tournamentBank * squad_bank_percentage);
-  const rank1SquadReward = Math.round(tournamentBank * rank_1_squad_reward_percentage);
-  const rank16SquadReward = Math.round(tournamentBank * rank_16_squad_reward_percentage);
-
-  // Thành viên Squad (tính theo tỷ lệ thực tế mẫu)
-  const top1FromTop1Squad = Math.round(tournamentBank * Top1FromTop1Squad_ratio);
-  const top64FromTop1Squad = Math.round(tournamentBank * Top64FromTop1Squad_ratio);
-  const top1FromTop16Squad = Math.round(tournamentBank * Top1FromTop16Squad_ratio);
-  const top64FromTop16Squad = Math.round(tournamentBank * Top64FromTop16Squad_ratio);
-
-  // First Buy 1PX
-  const firstBuy1PXBank = Math.round(tournamentBank * first_buy_1px_bank_percentage);
-  const Top1FirstBuy1PX_ratio = 8206 / 2148102;
-  const Top512FirstBuy1PX_ratio = 1767 / 2148102;
-  const top1FirstBuy1PX = Math.round(firstBuy1PXBank * Top1FirstBuy1PX_ratio);
-  const top512FirstBuy1PX = Math.round(firstBuy1PXBank * Top512FirstBuy1PX_ratio);
-
-  // PX Holder
-  const pxHolderBank = Math.round(tournamentBank * px_holder_bank_percentage);
-  const Top1PXHolder_ratio = 5471 / 1432068;
-  const Top512PXHolder_ratio = 1178 / 1432068;
-  const top1PXHolder = Math.round(pxHolderBank * Top1PXHolder_ratio);
-  const top512PXHolder = Math.round(pxHolderBank * Top512PXHolder_ratio);
-
-  // Buy Final
-  const buyFinalBank = Math.round(tournamentBank * buy_final_bank_percentage);
-  const Top1BuyFinal_ratio = 2735 / 716034;
-  const Top512BuyFinal_ratio = 590 / 716034;
-  const top1BuyFinal = Math.round(buyFinalBank * Top1BuyFinal_ratio);
-  const top512BuyFinal = Math.round(buyFinalBank * Top512BuyFinal_ratio);
-
-  // Most Expensive Pixel
-  const mostExpensivePixelBank = Math.round(tournamentBank * most_expensive_pixel_bank_percentage);
-
-  // Mapping tên cột và mã màu hex (A-R)
+  const squad_bank_percentage = 0.39,
+    rank_1_squad_reward_percentage = 0.03483,
+    rank_16_squad_reward_percentage = 0.01613,
+    first_buy_1px_bank_percentage = 0.3,
+    px_holder_bank_percentage = 0.2,
+    buy_final_bank_percentage = 0.1,
+    most_expensive_pixel_bank_percentage = 0.01,
+    Top1FromTop1Squad_ratio = 8367 / 7160341,
+    Top64FromTop1Squad_ratio = 2857 / 7160341,
+    Top1FromTop16Squad_ratio = 3185 / 7160341,
+    Top64FromTop16Squad_ratio = 1087 / 7160341;
+  const tournamentBank = Math.round(rewardBank),
+    squadBank = Math.round(tournamentBank * squad_bank_percentage),
+    rank1SquadReward = Math.round(tournamentBank * rank_1_squad_reward_percentage),
+    rank16SquadReward = Math.round(tournamentBank * rank_16_squad_reward_percentage),
+    top1FromTop1Squad = Math.round(tournamentBank * Top1FromTop1Squad_ratio),
+    top64FromTop1Squad = Math.round(tournamentBank * Top64FromTop1Squad_ratio),
+    top1FromTop16Squad = Math.round(tournamentBank * Top1FromTop16Squad_ratio),
+    top64FromTop16Squad = Math.round(tournamentBank * Top64FromTop16Squad_ratio),
+    firstBuy1PXBank = Math.round(tournamentBank * first_buy_1px_bank_percentage),
+    Top1FirstBuy1PX_ratio = 8206 / 2148102,
+    Top512FirstBuy1PX_ratio = 1767 / 2148102,
+    top1FirstBuy1PX = Math.round(firstBuy1PXBank * Top1FirstBuy1PX_ratio),
+    top512FirstBuy1PX = Math.round(firstBuy1PXBank * Top512FirstBuy1PX_ratio),
+    pxHolderBank = Math.round(tournamentBank * px_holder_bank_percentage),
+    Top1PXHolder_ratio = 5471 / 1432068,
+    Top512PXHolder_ratio = 1178 / 1432068,
+    top1PXHolder = Math.round(pxHolderBank * Top1PXHolder_ratio),
+    top512PXHolder = Math.round(pxHolderBank * Top512PXHolder_ratio),
+    buyFinalBank = Math.round(tournamentBank * buy_final_bank_percentage),
+    Top1BuyFinal_ratio = 2735 / 716034,
+    Top512BuyFinal_ratio = 590 / 716034,
+    top1BuyFinal = Math.round(buyFinalBank * Top1BuyFinal_ratio),
+    top512BuyFinal = Math.round(buyFinalBank * Top512BuyFinal_ratio),
+    mostExpensivePixelBank = Math.round(tournamentBank * most_expensive_pixel_bank_percentage);
   const rows = [
     { label: 'Tournament Bank', color: '#ADD8E6', value: tournamentBank },
     { label: 'Squad Bank (39%)', color: '#ADD8E6', value: squadBank },
@@ -344,305 +329,180 @@ function renderAutoTable(rewardBank) {
     { label: 'Top 512 Buy Final', color: '#90EE90', value: top512BuyFinal },
     { label: 'Most Expensive Bank (1%)', color: '#ADD8E6', value: mostExpensivePixelBank },
   ];
-
-  let html = '<div style="margin: 24px 0 8px 0">';
-  html +=
-    '<h3 style="text-align:center;color:#00f2ea;margin-bottom:10px;letter-spacing:1px;">' +
-    '<span class="live-emoji">🔴</span><span class="live-label">LIVE</span>Not Pixel Tournament Reward Distribution</h3>';
-  html += '<p style="text-align:center; font-size: 0.8em; color: #c0c0c0; margin-top: -8px; margin-bottom: 12px;">Data refreshes every 10s. Values ▲ / ▼ show the change since the last update.</p>';
-  html += '<div style="overflow-x:auto">';
-  html += '<table class="excel-table"><tbody>';
+  let html = `<div style="margin: 24px 0 8px 0"><h3 style="text-align:center;color:#00f2ea;margin-bottom:10px;letter-spacing:1px;"><span class="live-emoji">🔴</span><span class="live-label">LIVE</span>Not Pixel Tournament Reward Distribution</h3><p style="text-align:center; font-size: 0.8em; color: #c0c0c0; margin-top: -8px; margin-bottom: 12px;">Data refreshes every 10s. Values ▲ / ▼ show the change since the last update.</p><div style="overflow-x:auto"><table class="excel-table"><tbody>`;
   rows.forEach((row, idx) => {
     let deltaHtml = '';
     if (prevRowValues && typeof prevRowValues[idx] === 'number') {
       const diff = row.value - prevRowValues[idx];
-      if (diff > 0) {
-        deltaHtml = `<span class=\"delta-up\"><span class=\"delta-arrow\">▲</span>+${formatNumber(diff)}</span>`;
-      } else if (diff < 0) {
-        deltaHtml = `<span class=\"delta-down\"><span class=\"delta-arrow\">▼</span>${formatNumber(diff)}</span>`;
-      }
+      if (diff > 0) deltaHtml = `<span class="delta-up"><span class="delta-arrow">▲</span>+${formatNumber(diff)}</span>`;
+      else if (diff < 0) deltaHtml = `<span class="delta-down"><span class="delta-arrow">▼</span>${formatNumber(diff)}</span>`;
     }
-    html += `<tr><th style=\"min-width:180px;text-align:left;background:${row.color};color:#222;font-weight:700;\">${
+    html += `<tr><th style="min-width:180px;text-align:left;background:${row.color};color:#222;font-weight:700;">${
       row.label
-    }</th><td style=\"text-align:right;background:#181818;color:#fff;\">${formatNumber(row.value)}${deltaHtml}</td></tr>`;
+    }</th><td style="text-align:right;background:#181818;color:#fff;">${formatNumber(row.value)}${deltaHtml}</td></tr>`;
   });
   html += '</tbody></table></div></div>';
   container.innerHTML = html;
-  // Lưu lại giá trị hiện tại để so sánh lần sau
   prevRowValues = rows.map((r) => r.value);
 }
 
-let chartInstance = null;
-let historyData = [];
-
-function filterData(range, customRange = {}) {
-  if (range === 'custom') {
-    const { start, end } = customRange;
-    if (!start || !end) {
-      return historyData; // Trả về toàn bộ nếu không có ngày tháng
+function handleExcelUpload(event) {
+  const file = event.target.files[0];
+  const statusEl = document.getElementById('excel-upload-status');
+  if (!file) {
+    statusEl.textContent = 'No file selected.';
+    return;
+  }
+  statusEl.textContent = 'Reading file...';
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const data = new Uint8Array(e.target.result),
+      workbook = XLSX.read(data, { type: 'array' }),
+      firstSheetName = workbook.SheetNames[0],
+      worksheet = workbook.Sheets[firstSheetName],
+      jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+    if (jsonData.length === 0) {
+      statusEl.textContent = 'Sheet has no data.';
+      return;
     }
-    const startTime = new Date(start).getTime();
-    const endTime = new Date(end).getTime();
+    const processedData = processExcelData(jsonData);
+    renderExcelTable(processedData);
+    statusEl.textContent = 'Data loaded.';
+  };
+  reader.onerror = function () {
+    statusEl.textContent = 'Error reading file.';
+  };
+  reader.readAsArrayBuffer(file);
+}
 
-    if (startTime >= endTime) {
-      alert('Start date must be before end date.');
-      // Clear end date input và focus lại
-      const endInput = document.getElementById('end-datetime');
-      if (endInput) {
-        endInput.value = '';
-        endInput.focus();
+function processExcelData(data) {
+  return data.map((row) => {
+    if ('rewardBank' in row) row['Tournament Bank'] = row['rewardBank'];
+    return row;
+  });
+}
+
+function renderExcelTable(data) {
+  const container = document.getElementById('excel-table-container');
+  if (!data || data.length === 0) {
+    container.innerHTML = '<p>No data to display.</p>';
+    return;
+  }
+  let html = '<div style="overflow-x:auto"><table class="excel-table"><thead><tr>';
+  const columns = Object.keys(data[0]);
+  columns.forEach((col) => {
+    html += `<th>${col}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+  data.forEach((row) => {
+    html += '<tr>';
+    columns.forEach((col) => {
+      html += `<td>${row[col]}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  container.innerHTML = html;
+}
+
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement(
+    { pageLanguage: 'en', includedLanguages: 'en,ja,vi,ko,tr,ar,ru', layout: google.translate.TranslateElement.InlineLayout.SIMPLE, autoDisplay: false },
+    'google_translate_element'
+  );
+}
+
+// --- KHỞI CHẠY KHI TẢI TRANG ---
+document.addEventListener('DOMContentLoaded', () => {
+  fetchDataAndUpdate();
+  setInterval(fetchDataAndUpdate, 10000);
+
+  fetch('history.json')
+    .then((res) => {
+      if (!res.ok) throw new Error('Failed to load history.json');
+      return res.json();
+    })
+    .then((data) => {
+      historyData = data && data.length > 0 ? data : [];
+      applyRangeToAllCharts('all');
+      // Update tips with first/last data frame times
+      if (historyData.length > 0) {
+        const first = new Date(historyData[0].timestamp);
+        const last = new Date(historyData[historyData.length - 1].timestamp);
+        const opts = { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+        const firstStr = first.toLocaleString(undefined, opts);
+        const lastStr = last.toLocaleString(undefined, opts);
+        const firstEl = document.getElementById('first-data-time');
+        const lastEl = document.getElementById('last-data-time');
+        if (firstEl) firstEl.textContent = firstStr;
+        if (lastEl) lastEl.textContent = lastStr;
       }
-      return []; // Trả về mảng rỗng để không vẽ gì
-    }
+    })
+    .catch((error) => {
+      console.error('Error with history.json:', error);
+      historyData = [];
+      applyRangeToAllCharts('all');
+    });
 
-    return historyData.filter((d) => {
-      const itemTime = new Date(d.timestamp).getTime();
-      return itemTime >= startTime && itemTime <= endTime;
+  // [ĐÃ SỬA LỖI CUỐI CÙNG]
+  // Listener này giờ sẽ tìm đúng container 'chart-filter' và nút 'custom-range-btn' như trong HTML của bạn.
+  const filtersContainer = document.getElementById('chart-filter');
+  if (filtersContainer) {
+    filtersContainer.addEventListener('click', (event) => {
+      const target = event.target;
+      if (target.tagName !== 'BUTTON') return;
+
+      // Xử lý các nút filter có sẵn (1H, 1D, etc. nếu có)
+      if (target.dataset.range) {
+        applyRangeToAllCharts(target.dataset.range);
+      }
+      // Xử lý nút "Filter (apply to all graphs)" với ID chính xác là "custom-range-btn"
+      else if (target.id === 'custom-range-btn') {
+        const start = document.getElementById('start-datetime').value;
+        const end = document.getElementById('end-datetime').value;
+        applyRangeToAllCharts('custom', { start, end });
+      }
     });
   }
 
-  const now = Date.now();
-  let ms = Infinity;
-  if (range === 'minute') ms = 60 * 60 * 1000;
-  if (range === 'hour') ms = 24 * 60 * 60 * 1000;
-  if (range === 'day') ms = 7 * 24 * 60 * 60 * 1000;
-  if (range === 'week') ms = 30 * 24 * 60 * 60 * 1000;
-  return historyData.filter((d) => range === 'all' || now - new Date(d.timestamp).getTime() <= ms);
-}
+  const excelInput = document.getElementById('excel-file-input');
+  if (excelInput) excelInput.addEventListener('change', handleExcelUpload);
 
-function getSmartXTicksConfig(labels) {
-  // Nếu số điểm > 8 thì nghiêng, giảm số nhãn, chỉ hiện giờ:phút
-  if (labels.length > 8) {
-    return {
-      color: '#fff',
-      font: { size: 12, family: 'M PLUS Rounded 1c' },
-      maxRotation: 45,
-      minRotation: 30,
-      autoSkip: true,
-      maxTicksLimit: 4,
-      padding: 4,
-      callback: function (value, index, values) {
-        const label = this.getLabelForValue(value);
-        const date = new Date(label);
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      },
-    };
-  } else {
-    // Ít điểm: nằm ngang, hiện ngày + giờ
-    return {
-      color: '#fff',
-      font: { size: 13, family: 'M PLUS Rounded 1c' },
-      maxRotation: 0,
-      minRotation: 0,
-      autoSkip: false,
-      maxTicksLimit: labels.length,
-      padding: 6,
-      callback: function (value, index, values) {
-        const label = this.getLabelForValue(value);
-        const date = new Date(label);
-        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      },
-    };
+  // Add refresh button logic
+  const refreshBtn = document.getElementById('refresh-btn');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', () => {
+      // Reset filter inputs
+      document.getElementById('start-datetime').value = '';
+      document.getElementById('end-datetime').value = '';
+      // Fetch latest data and redraw everything to default
+      fetchDataAndUpdate();
+      fetch('history.json')
+        .then((res) => {
+          if (!res.ok) throw new Error('Failed to load history.json');
+          return res.json();
+        })
+        .then((data) => {
+          historyData = data && data.length > 0 ? data : [];
+          applyRangeToAllCharts('all');
+          // Update tips with first/last data frame times
+          if (historyData.length > 0) {
+            const first = new Date(historyData[0].timestamp);
+            const last = new Date(historyData[historyData.length - 1].timestamp);
+            const opts = { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+            const firstStr = first.toLocaleString(undefined, opts);
+            const lastStr = last.toLocaleString(undefined, opts);
+            const firstEl = document.getElementById('first-data-time');
+            const lastEl = document.getElementById('last-data-time');
+            if (firstEl) firstEl.textContent = firstStr;
+            if (lastEl) lastEl.textContent = lastStr;
+          }
+        })
+        .catch((error) => {
+          console.error('Error with history.json:', error);
+          historyData = [];
+          applyRangeToAllCharts('all');
+        });
+    });
   }
-}
-
-// Sửa lại thông báo lỗi trên canvas thành 2 dòng, căn giữa
-function drawNoDataMessage(ctx) {
-  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  ctx.fillStyle = 'white';
-  ctx.font = '17px "M PLUS Rounded 1c", Arial, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('Refresh the page to solve - 99.99% work.', ctx.canvas.width / 2, ctx.canvas.height / 2);
-}
-
-// --- SỬA renderChart ---
-function renderChart(range = 'all', customRange = {}) {
-  const data = filterData(range, customRange);
-  if (chartInstance) {
-    chartInstance.destroy();
-    chartInstance = null;
-  }
-  const ctx = document.getElementById('tournamentChart').getContext('2d');
-  if (data.length < 2) {
-    drawNoDataMessage(ctx);
-    return;
-  }
-  const labels = data.map((d) => new Date(d.timestamp).toLocaleString());
-  const values = data.map((d) => d.rewardBank);
-  chartInstance = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [
-        {
-          label: 'Tournament Bank',
-          data: values,
-          borderColor: '#00f2ea',
-          backgroundColor: 'rgba(0,242,234,0.13)',
-          fill: true,
-          tension: 0.2,
-          pointBackgroundColor: '#fff',
-          pointBorderColor: '#00f2ea',
-          pointRadius: 4,
-          pointHoverRadius: 7,
-          pointBorderWidth: 2,
-        },
-      ],
-    },
-    options: {
-      plugins: {
-        legend: { labels: { color: '#00f2ea', font: { weight: 'bold', size: 15, family: 'M PLUS Rounded 1c' } } },
-        tooltip: {
-          enabled: true,
-          backgroundColor: '#222',
-          titleColor: '#00f2ea',
-          bodyColor: '#fff',
-          borderColor: '#00f2ea',
-          borderWidth: 2,
-          titleFont: { weight: 'bold', size: 15, family: 'M PLUS Rounded 1c' },
-          bodyFont: { size: 15, family: 'M PLUS Rounded 1c' },
-          padding: 10,
-          callbacks: {
-            label: function (context) {
-              return 'Tournament Bank: ' + context.formattedValue;
-            },
-          },
-        },
-      },
-      layout: { padding: 10 },
-      scales: {
-        x: getSmartXTicksConfig(labels),
-        y: {
-          ticks: {
-            color: '#fff',
-            font: { size: 13, family: 'M PLUS Rounded 1c' },
-            padding: 6,
-          },
-        },
-      },
-    },
-  });
-}
-
-fetch('history.json')
-  .then((res) => res.json())
-  .then((data) => {
-    historyData = data;
-    window.historyData = data;
-    historyLoaded = true;
-    tryAutoApplyRange();
-  });
-
-function getDeltaAt(history, nowIdx, msAgo) {
-  const nowTime = new Date(history[nowIdx].timestamp).getTime();
-  // Tìm bản ghi gần nhất trước mốc msAgo
-  for (let i = nowIdx - 1; i >= 0; i--) {
-    const t = new Date(history[i].timestamp).getTime();
-    if (nowTime - t >= msAgo) {
-      return history[nowIdx].rewardBank - history[i].rewardBank;
-    }
-  }
-  return null; // Không tìm thấy
-}
-
-// Khi render bảng hoặc biểu đồ:
-const ms5min = 5 * 60 * 1000;
-const ms1h = 60 * 60 * 1000;
-const ms1d = 24 * 60 * 60 * 1000;
-const ms1w = 7 * 24 * 60 * 60 * 1000;
-
-historyData.forEach((point, idx) => {
-  const delta5min = getDeltaAt(historyData, idx, ms5min);
-  const delta1h = getDeltaAt(historyData, idx, ms1h);
-  const delta1d = getDeltaAt(historyData, idx, ms1d);
-  const delta1w = getDeltaAt(historyData, idx, ms1w);
-  // Hiển thị các delta này bên cạnh giá trị point.rewardBank
 });
-
-// --- Thêm các biến toàn cục cho các biểu đồ mới ---
-let liveTokenChartInstance = null;
-let onlinePlayersChartInstance = null;
-let tradeVolumeChartInstance = null;
-
-// --- Hàm vẽ biểu đồ chung cho các trường ---
-function renderCustomChart(canvasId, chartInstanceRef, field, range = 'all', customRange = {}) {
-  const data = filterData(range, customRange);
-  if (chartInstanceRef && chartInstanceRef.current) {
-    chartInstanceRef.current.destroy();
-    chartInstanceRef.current = null;
-  }
-  const ctx = document.getElementById(canvasId).getContext('2d');
-  if (!data.length || data.length < 2) {
-    drawNoDataMessage(ctx);
-    return;
-  }
-  const labels = data.map((d) => new Date(d.timestamp).toLocaleString());
-  const values = data.map((d) => d[field]);
-  let color, label;
-  if (field === 'liveTokenSupply') {
-    color = '#ffb300';
-    label = 'Live Token Supply';
-  } else if (field === 'onlinePlayers') {
-    color = '#00e676';
-    label = 'App Online Players';
-  } else if (field === 'tournamentTradeVolume') {
-    color = '#00bcd4';
-    label = 'Tournament PX Trade Volume';
-  } else {
-    color = '#00f2ea';
-    label = 'Tournament Bank';
-  }
-  chartInstanceRef.current = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [
-        {
-          label: label,
-          data: values,
-          borderColor: color,
-          backgroundColor: 'rgba(0,242,234,0.13)',
-          fill: true,
-          tension: 0.2,
-          pointBackgroundColor: '#fff',
-          pointBorderColor: color,
-          pointRadius: 4,
-          pointHoverRadius: 7,
-          pointBorderWidth: 2,
-        },
-      ],
-    },
-    options: {
-      plugins: {
-        legend: { labels: { color: color, font: { weight: 'bold', size: 15, family: 'M PLUS Rounded 1c' } } },
-        tooltip: {
-          enabled: true,
-          backgroundColor: '#222',
-          titleColor: color,
-          bodyColor: '#fff',
-          borderColor: color,
-          borderWidth: 2,
-          titleFont: { weight: 'bold', size: 15, family: 'M PLUS Rounded 1c' },
-          bodyFont: { size: 15, family: 'M PLUS Rounded 1c' },
-          padding: 10,
-          callbacks: {
-            label: function (context) {
-              return label + ': ' + context.formattedValue;
-            },
-          },
-        },
-      },
-      layout: { padding: 10 },
-      scales: {
-        x: getSmartXTicksConfig(labels),
-        y: {
-          ticks: {
-            color: '#fff',
-            font: { size: 13, family: 'M PLUS Rounded 1c' },
-            padding: 6,
-          },
-        },
-      },
-    },
-  });
-}
