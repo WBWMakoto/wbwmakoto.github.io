@@ -150,6 +150,14 @@ document.addEventListener('DOMContentLoaded', () => {
   if (excelInput) {
     excelInput.addEventListener('change', handleExcelUpload);
   }
+
+  // Thêm sự kiện cho nút Refresh Chart
+  const refreshBtn = document.getElementById('refresh-chart-btn');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', () => {
+      fetchDataAndUpdate();
+    });
+  }
 });
 
 function handleExcelUpload(event) {
@@ -202,7 +210,7 @@ function processExcelData(data) {
 function renderExcelTable(data) {
   const container = document.getElementById('excel-table-container');
   if (!data || data.length === 0) {
-    container.innerHTML = '<p>Không có dữ liệu để hiển thị.</p>';
+    container.innerHTML = '<p>No data to display.</p>';
     return;
   }
   // Tạo bảng
@@ -231,7 +239,14 @@ function renderAutoTable(rewardBank) {
   const container = document.getElementById('auto-table-container');
   if (!container) return;
   if (typeof rewardBank !== 'number' || isNaN(rewardBank)) {
-    container.innerHTML = '<p>Không có dữ liệu Tournament Bank.</p>';
+    container.innerHTML = `<p>
+        If you see this, it means the Not Pixel team has closed all their data, and there is nothing I can do about it.<br>
+        Honestly, I am still happy even if that happens, because this project is a special memory for me.<br>
+        It brings me back to the 2018 era, before I even started studying at Tokyo University, when I created this with my Vietnamese brother, who also helped me host this website.<br>
+        This is not the end—many ideas are still waiting for me to realize, and you can contact <b>@mikaakabano</b> to suggest what I should do next.<br>
+        Play Not Pixel to support them (and me!) by clicking 
+        <a href="https://t.me/notpixel/app?startapp=f5822071900_s577266" target="_blank">here</a>.
+      </p>`;
     return;
   }
   // Các tỷ lệ phần trăm

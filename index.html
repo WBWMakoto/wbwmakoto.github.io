@@ -90,12 +90,15 @@
                             style="padding: 5px 10px; border-radius: 5px; border: none; background-color: #4CAF50; color: white; margin-left: 10px; cursor: pointer;">Filter</button>
                     </div>
                 </div>
+                <button id="refresh-chart-btn"
+                    style="margin: 8px 0 12px 0; padding: 6px 18px; border-radius: 6px; background: #00f2ea; color: #222; font-weight: 600; border: none; cursor: pointer;">Refresh
+                    Chart</button>
                 <div id="chart-container">
                     <canvas id="tournamentChart" height="80"></canvas>
                 </div>
                 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                 <p><img src="images/notpixellogov1.png" class="inline-logo" alt="PX Logo"> <strong>Area:</strong>
-                    [512x512] = 262,144 (<span id="pixel-area-percentage">25%</span> of Max Area [1024x1024])</p>
+                    [1024x1024] = 1,048,576 (<span id="pixel-area-percentage">100%</span> of Max Area [1024x1024])</p>
                 <p><img src="images/notpixellogov1.png" class="inline-logo" alt="PX Logo"> <strong>Available (you can
                         buy anytime):</strong> <span id="pixel-available">N/A</span> (<span
                         id="pixel-available-percentage">N/A</span>)</p>
@@ -234,6 +237,8 @@
                     <li><b>Loading:</b> In some cases, please allow up to 15 seconds for the website to fully load. (In
                         95% of tests, the website loads completely in under 5 seconds.)</li>
                 </ul>
+                <p><b>Estimated Data:</b> Some data are estimated (marked with "est"). These values may not be 100%
+                    accurate, but I guarantee the maximum error is within 1% compared to the actual value.</p>
             </div>
 
             <div class="qa-item">
