@@ -400,5 +400,14 @@
     "liveTokenSupply": 241783853,
     "onlinePlayers": 1356,
     "tournamentTradeVolume": 62430453
+  },
+  {
+    "timestamp": "2025-06-23T17:48:38.763Z",
+    "rewardBank": 7326435.9875,
+    "burnBank": 3117632,
+    "totalBank": 10444067.9875,
+    "liveTokenSupply": 241782368,
+    "onlinePlayers": 1388,
+    "tournamentTradeVolume": 62459696
   }
 ]
