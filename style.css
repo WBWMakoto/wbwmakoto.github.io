@@ -697,8 +697,9 @@ footer a:hover {
     background-color: transparent !important;
     max-width: 100%;
     width: 100%;
-    /* height: 180px; */
-    /* min-height: 120px; */
+    height: 220px;
+    min-height: 100px;
+    max-height: 260px;
     display: block;
 }
 
@@ -708,9 +709,9 @@ footer a:hover {
     }
 
     #tournamentChart {
-        height: 260px !important;
-        min-height: 180px;
-        max-height: 320px;
+        height: 140px !important;
+        min-height: 80px;
+        max-height: 180px;
     }
 
     .excel-table th,
