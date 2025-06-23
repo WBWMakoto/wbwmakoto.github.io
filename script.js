@@ -181,6 +181,21 @@ document.addEventListener('DOMContentLoaded', () => {
   if (excelInput) {
     excelInput.addEventListener('change', handleExcelUpload);
   }
+
+  // Thêm sự kiện cho custom range filter
+  const applyBtn = document.getElementById('apply-custom-range');
+  if (applyBtn) {
+    applyBtn.addEventListener('click', function () {
+      const start = document.getElementById('start-datetime').value;
+      const end = document.getElementById('end-datetime').value;
+      if (!start && !end) {
+        // Nếu cả hai đều rỗng, hiển thị toàn bộ dữ liệu
+        applyRangeToAllCharts('all', {});
+      } else {
+        applyRangeToAllCharts('custom', { start, end });
+      }
+    });
+  }
 });
 
 function handleExcelUpload(event) {
@@ -645,4 +660,13 @@ function renderCustomChart(canvasId, chartInstanceRef, field, range = 'all', cus
       },
     },
   });
+}
+
+// Hàm đồng bộ filter cho 4 biểu đồ
+function applyRangeToAllCharts(range = 'all', customRange = {}) {
+  renderChart(range, customRange);
+  // 3 biểu đồ phụ
+  renderCustomChart('liveTokenChart', { current: window.liveTokenChartInstance }, 'liveTokenSupply', range, customRange);
+  renderCustomChart('onlinePlayersChart', { current: window.onlinePlayersChartInstance }, 'onlinePlayers', range, customRange);
+  renderCustomChart('tradeVolumeChart', { current: window.tradeVolumeChartInstance }, 'tournamentTradeVolume', range, customRange);
 }

@@ -798,3 +798,9 @@ footer a:hover {
     text-align: center;
     text-shadow: 0 1px 6px #000;
 }
+
+.filter-warning {
+    color: #ff4444;
+    font-weight: bold;
+    margin-top: 8px;
+}
