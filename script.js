@@ -81,7 +81,7 @@ function updateHeaderStats(infoData, onlineData) {
 // Hàm cập nhật chi tiết Pixel (Đã viết lại)
 function updatePixelDetails(infoData, filterData) {
   // 1. Cập nhật Pixel Area
-  const pixelArea = 512 * 512;
+  const pixelArea = 1024 * 1024; // Đã mở full map, hiển thị 100%
   const maxPixelArea = 1024 * 1024;
   document.getElementById('pixel-area-percentage').textContent = `${((pixelArea / maxPixelArea) * 100).toFixed(0)}%`;
 
@@ -427,6 +427,12 @@ function filterData(range, customRange = {}) {
 
     if (startTime >= endTime) {
       alert('Start date must be before end date.');
+      // Clear end date input và focus lại
+      const endInput = document.getElementById('end-datetime');
+      if (endInput) {
+        endInput.value = '';
+        endInput.focus();
+      }
       return []; // Trả về mảng rỗng để không vẽ gì
     }
 
@@ -450,15 +456,15 @@ function renderChart(range = 'all', customRange = {}) {
 
   if (chartInstance) chartInstance.destroy();
 
-  // Hiển thị thông báo nếu không có dữ liệu
+  // Nếu không đủ 2 điểm dữ liệu, hiển thị thông báo đẹp
   const ctx = document.getElementById('tournamentChart').getContext('2d');
-  if (data.length === 0) {
+  if (data.length < 2) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.fillStyle = 'white';
     ctx.font = '16px "M PLUS Rounded 1c"';
     ctx.textAlign = 'center';
     ctx.fillText('No data available for this range.', ctx.canvas.width / 2, ctx.canvas.height / 2);
-    chartInstance = null; // Đảm bảo không có biểu đồ cũ nào được giữ lại
+    chartInstance = null;
     return;
   }
 
@@ -487,7 +493,7 @@ function renderChart(range = 'all', customRange = {}) {
     },
     options: {
       plugins: {
-        legend: { labels: { color: '#00f2ea', font: { weight: 'bold', size: 15 } } },
+        legend: { labels: { color: '#00f2ea', font: { weight: 'bold', size: 15, family: 'M PLUS Rounded 1c' } } },
         tooltip: {
           enabled: true,
           backgroundColor: '#222',
@@ -495,8 +501,9 @@ function renderChart(range = 'all', customRange = {}) {
           bodyColor: '#fff',
           borderColor: '#00f2ea',
           borderWidth: 2,
-          titleFont: { weight: 'bold', size: 15 },
-          bodyFont: { size: 15 },
+          titleFont: { weight: 'bold', size: 15, family: 'M PLUS Rounded 1c' },
+          bodyFont: { size: 15, family: 'M PLUS Rounded 1c' },
+          padding: 10,
           callbacks: {
             label: function (context) {
               return context.dataset.label + ': ' + context.formattedValue;
@@ -504,9 +511,26 @@ function renderChart(range = 'all', customRange = {}) {
           },
         },
       },
+      layout: { padding: 10 },
       scales: {
-        x: { ticks: { color: '#fff', font: { size: 13 } } },
-        y: { ticks: { color: '#fff', font: { size: 13 } } },
+        x: {
+          ticks: {
+            color: '#fff',
+            font: { size: 13, family: 'M PLUS Rounded 1c' },
+            maxRotation: 30,
+            minRotation: 0,
+            autoSkip: true,
+            maxTicksLimit: 6,
+            padding: 6,
+          },
+        },
+        y: {
+          ticks: {
+            color: '#fff',
+            font: { size: 13, family: 'M PLUS Rounded 1c' },
+            padding: 6,
+          },
+        },
       },
     },
   });
@@ -576,7 +600,8 @@ function renderCustomChart(canvasId, chartInstanceRef, field, range = 'all', cus
   const data = filterData(range, customRange);
   if (chartInstanceRef && chartInstanceRef.current) chartInstanceRef.current.destroy();
   const ctx = document.getElementById(canvasId).getContext('2d');
-  if (!data.length) {
+  // Nếu không đủ 2 điểm dữ liệu, hiển thị thông báo đẹp
+  if (!data.length || data.length < 2) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.fillStyle = 'white';
     ctx.font = '16px "M PLUS Rounded 1c"';
@@ -620,7 +645,7 @@ function renderCustomChart(canvasId, chartInstanceRef, field, range = 'all', cus
     },
     options: {
       plugins: {
-        legend: { labels: { color: color, font: { weight: 'bold', size: 15 } } },
+        legend: { labels: { color: color, font: { weight: 'bold', size: 15, family: 'M PLUS Rounded 1c' } } },
         tooltip: {
           enabled: true,
           backgroundColor: '#222',
@@ -628,8 +653,9 @@ function renderCustomChart(canvasId, chartInstanceRef, field, range = 'all', cus
           bodyColor: '#fff',
           borderColor: color,
           borderWidth: 2,
-          titleFont: { weight: 'bold', size: 15 },
-          bodyFont: { size: 15 },
+          titleFont: { weight: 'bold', size: 15, family: 'M PLUS Rounded 1c' },
+          bodyFont: { size: 15, family: 'M PLUS Rounded 1c' },
+          padding: 10,
           callbacks: {
             label: function (context) {
               return context.dataset.label + ': ' + context.formattedValue;
@@ -637,9 +663,26 @@ function renderCustomChart(canvasId, chartInstanceRef, field, range = 'all', cus
           },
         },
       },
+      layout: { padding: 10 },
       scales: {
-        x: { ticks: { color: '#fff', font: { size: 13 } } },
-        y: { ticks: { color: '#fff', font: { size: 13 } } },
+        x: {
+          ticks: {
+            color: '#fff',
+            font: { size: 13, family: 'M PLUS Rounded 1c' },
+            maxRotation: 30,
+            minRotation: 0,
+            autoSkip: true,
+            maxTicksLimit: 6,
+            padding: 6,
+          },
+        },
+        y: {
+          ticks: {
+            color: '#fff',
+            font: { size: 13, family: 'M PLUS Rounded 1c' },
+            padding: 6,
+          },
+        },
       },
     },
   });

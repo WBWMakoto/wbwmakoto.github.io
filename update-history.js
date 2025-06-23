@@ -5,6 +5,17 @@ const file = 'history.json';
 async function main() {
   const res = await fetch('https://notpixel.org/api/v1/battle-canvas/info');
   const data = await res.json();
+  // Fetch thêm API online
+  let onlinePlayers = null;
+  try {
+    const onlineRes = await fetch('https://notpixel.org/api/v1/history/online/stats');
+    const onlineData = await onlineRes.json();
+    if (typeof onlineData.current_visitors === 'number') {
+      onlinePlayers = onlineData.current_visitors;
+    }
+  } catch (e) {
+    onlinePlayers = null;
+  }
   const now = new Date().toISOString();
   let history = [];
   if (fs.existsSync(file)) {
@@ -31,9 +42,6 @@ async function main() {
   if (typeof liveTokenSupply !== 'number' && typeof burnBank === 'number') {
     liveTokenSupply = 245000000 - burnBank - 100000;
   }
-
-  // Online Players: API hoặc fallback (không có trong API này, để null)
-  let onlinePlayers = null;
 
   // Tournament Trade Volume: API hoặc fallback
   let tournamentTradeVolume = data.tournamentTradeVolume;
