@@ -506,7 +506,7 @@ function renderChart(range = 'all', customRange = {}) {
           padding: 10,
           callbacks: {
             label: function (context) {
-              return context.dataset.label + ': ' + context.formattedValue;
+              return 'Tournament Bank: ' + context.formattedValue;
             },
           },
         },
@@ -618,10 +618,13 @@ function renderCustomChart(canvasId, chartInstanceRef, field, range = 'all', cus
     label = 'Live Token Supply';
   } else if (field === 'onlinePlayers') {
     color = '#00e676';
-    label = 'Online Players';
-  } else {
+    label = 'App Online Players';
+  } else if (field === 'tournamentTradeVolume') {
     color = '#00bcd4';
-    label = 'Tournament Trade Volume (PX)';
+    label = 'Tournament PX Trade Volume';
+  } else {
+    color = '#00f2ea';
+    label = 'Tournament Bank';
   }
   chartInstanceRef.current = new Chart(ctx, {
     type: 'line',
@@ -658,7 +661,7 @@ function renderCustomChart(canvasId, chartInstanceRef, field, range = 'all', cus
           padding: 10,
           callbacks: {
             label: function (context) {
-              return context.dataset.label + ': ' + context.formattedValue;
+              return label + ': ' + context.formattedValue;
             },
           },
         },

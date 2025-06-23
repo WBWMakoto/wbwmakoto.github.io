@@ -24,7 +24,7 @@
         <header>
             <h1 class="main-title">Not Pixel Dashboard</h1>
             <div class="subtitle-jp">ノットピクセル統計ダッシュボード</div>
-            <p class="subtitle">Real-time Statistics for Not Pixel Battle Canvas</p>
+            <p class="subtitle">Real-time Statistics for Not Pixel Battle Canvas SS2</p>
         </header>
 
         <section id="stats-grid" class="stats-grid-custom">
@@ -39,7 +39,7 @@
             <div class="stat-card">
                 <img src="images/burnbanklogo.png" alt="Burn Bank Logo">
                 <div>
-                    <h4>Burn Bank</h4>
+                    <h4>Burn Bank (est)</h4>
                     <p><span id="burn-bank">Not Available</span> <img class="inline-logo"
                             src="images/notpixellogov1.png" alt="PX Logo"></p>
                 </div>
@@ -47,7 +47,7 @@
             <div class="stat-card">
                 <img src="images/totalbanklogo.png" alt="Total Bank Logo">
                 <div>
-                    <h4>Total Bank</h4>
+                    <h4>Total Bank (est)</h4>
                     <p><span id="total-bank">Not Available</span> <img class="inline-logo"
                             src="images/notpixellogov1.png" alt="PX Logo"></p>
                 </div>
@@ -55,7 +55,7 @@
             <div class="stat-card">
                 <img src="images/notpixellogov1.png" alt="Live Token Supply Logo">
                 <div>
-                    <h4>Live Token Supply</h4>
+                    <h4>Live Token Supply (est)</h4>
                     <p><span id="live-supply">Not Available</span> <img class="inline-logo"
                             src="images/notpixellogov1.png" alt="PX Logo"></p>
                 </div>
@@ -70,7 +70,7 @@
             <div class="stat-card">
                 <img src="images/tradevolume.png" alt="Trade Volume Logo">
                 <div>
-                    <h4>Tournament Trade Volume (PX)</h4>
+                    <h4>Tournament PX Trade Volume (est)</h4>
                     <p><span id="tournament-trade-volume">Not Available</span> <img class="inline-logo"
                             src="images/notpixellogov1.png" alt="PX Logo"></p>
                 </div>
@@ -102,11 +102,25 @@
                 <button id="refresh-chart-btn"
                     style="margin: 8px 0 12px 0; padding: 6px 18px; border-radius: 6px; background: #00f2ea; color: #222; font-weight: 600; border: none; cursor: pointer;">Refresh
                     Chart</button>
+                <div class="chart-title"
+                    style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:2px;">
+                    <img src="images/tournamentbanklogo.png" alt="Tournament Bank Logo" class="inline-logo">
+                    <span style="color:#00f2ea;font-size:1.25em;font-weight:700;letter-spacing:1px;">Tournament
+                        Bank</span>
+                    <img src="images/tournamentbanklogo.png" alt="Tournament Bank Logo" class="inline-logo">
+                </div>
                 <div id="chart-container" class="chart-bg">
                     <canvas id="tournamentChart" height="220"></canvas>
                 </div>
                 <div class="chart-section">
-                    <h4 style="color:#00f2ea;text-align:center;margin:18px 0 6px 0;">Live Token Supply</h4>
+                    <div class="chart-title"
+                        style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:2px;">
+                        <img src="images/notpixellogov1.png" alt="Live Token Supply Logo" class="inline-logo">
+                        <span style="color:#ffb300;font-size:1.25em;font-weight:700;letter-spacing:1px;">Live Token
+                            Supply</span>
+                        <img src="images/notpixellogov1.png" alt="Live Token Supply Logo" class="inline-logo">
+                    </div>
+                    <h4 style="color:#00f2ea;text-align:center;margin:18px 0 6px 0;display:none;">Live Token Supply</h4>
                     <div class="chart-filter" id="chart-filter-live-token">
                         <button data-range="all">All</button>
                         <button data-range="minute">Last 60 minutes</button>
@@ -119,7 +133,15 @@
                     </div>
                 </div>
                 <div class="chart-section">
-                    <h4 style="color:#00f2ea;text-align:center;margin:18px 0 6px 0;">App Online Players</h4>
+                    <div class="chart-title"
+                        style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:2px;">
+                        <img src="images/onlinelogo.webp" alt="Online Players Logo" class="inline-logo">
+                        <span style="color:#00e676;font-size:1.25em;font-weight:700;letter-spacing:1px;">App Online
+                            Players</span>
+                        <img src="images/onlinelogo.webp" alt="Online Players Logo" class="inline-logo">
+                    </div>
+                    <h4 style="color:#00f2ea;text-align:center;margin:18px 0 6px 0;display:none;">App Online Players
+                    </h4>
                     <div class="chart-filter" id="chart-filter-online-players">
                         <button data-range="all">All</button>
                         <button data-range="minute">Last 60 minutes</button>
@@ -132,7 +154,15 @@
                     </div>
                 </div>
                 <div class="chart-section">
-                    <h4 style="color:#00f2ea;text-align:center;margin:18px 0 6px 0;">Tournament Trade Volume (PX)</h4>
+                    <div class="chart-title"
+                        style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:2px;">
+                        <img src="images/tradevolume.png" alt="PX Trade Volume Logo" class="inline-logo">
+                        <span style="color:#00bcd4;font-size:1.25em;font-weight:700;letter-spacing:1px;">Tournament PX
+                            Trade Volume</span>
+                        <img src="images/tradevolume.png" alt="PX Trade Volume Logo" class="inline-logo">
+                    </div>
+                    <h4 style="color:#00f2ea;text-align:center;margin:18px 0 6px 0;display:none;">Tournament PX Trade
+                        Volume</h4>
                     <div class="chart-filter" id="chart-filter-trade-volume">
                         <button data-range="all">All</button>
                         <button data-range="minute">Last 60 minutes</button>

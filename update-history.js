@@ -46,7 +46,7 @@ async function main() {
   // Tournament Trade Volume: API hoặc fallback
   let tournamentTradeVolume = data.tournamentTradeVolume;
   if (typeof tournamentTradeVolume !== 'number' && typeof totalBank === 'number') {
-    tournamentTradeVolume = Math.round(totalBank * 5.88);
+    tournamentTradeVolume = Math.round(1024 * 1024 + totalBank * 5.88);
   }
 
   history.push({

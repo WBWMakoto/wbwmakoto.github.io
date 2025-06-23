@@ -719,3 +719,17 @@ footer a:hover {
         max-height: 220px;
     }
 }
+
+.chart-filter button {
+    font-size: 1rem;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin: 2px 2px 6px 2px;
+}
+
+@media (max-width: 600px) {
+    .chart-filter button {
+        font-size: 0.95rem;
+        padding: 4px 7px;
+    }
+}
