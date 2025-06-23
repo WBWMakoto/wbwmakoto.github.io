@@ -34,24 +34,48 @@ async function fetchDataAndUpdate() {
 
 // Hàm cập nhật 5 chỉ số ở đầu trang
 function updateHeaderStats(infoData, onlineData) {
+  // Tournament Bank
   const rewardBank = infoData?.rewardBank;
-  const burnBank = infoData?.burnBank;
+  const tournamentBank = typeof rewardBank === 'number' ? rewardBank : undefined;
 
-  document.getElementById('tournament-bank').textContent = formatNumber(Math.round(rewardBank));
-  document.getElementById('burn-bank').textContent = formatNumber(Math.round(burnBank));
-
-  if (rewardBank !== undefined && burnBank !== undefined) {
-    document.getElementById('total-bank').textContent = formatNumber(Math.round(rewardBank + burnBank));
-  } else {
-    document.getElementById('total-bank').textContent = 'Not Available';
+  // Burn Bank: API hoặc fallback
+  let burnBank = infoData?.burnBank;
+  if (typeof burnBank !== 'number' && typeof tournamentBank === 'number') {
+    burnBank = Math.floor(tournamentBank / 2.35);
   }
 
-  // Sửa logic Live Token Supply
-  document.getElementById('live-supply').textContent = burnBank !== undefined ? formatNumber(245000000 - burnBank) : formatNumber(245000000);
-  document.getElementById('online-players').textContent = formatNumber(onlineData?.current_visitors);
+  // Total Bank: API hoặc fallback
+  let totalBank = infoData?.totalBank;
+  if (typeof totalBank !== 'number' && typeof tournamentBank === 'number' && typeof burnBank === 'number') {
+    totalBank = tournamentBank + burnBank;
+  }
+
+  // Live Token Supply: API hoặc fallback
+  let liveTokenSupply = infoData?.liveTokenSupply;
+  if (typeof liveTokenSupply !== 'number' && typeof burnBank === 'number') {
+    liveTokenSupply = 245000000 - burnBank - 100000;
+  }
+
+  // Online Players: API hoặc fallback
+  let onlinePlayers = onlineData?.current_visitors;
+  if (typeof onlinePlayers !== 'number') onlinePlayers = undefined;
+
+  // Tournament Trade Volume: API hoặc fallback
+  let tournamentTradeVolume = infoData?.tournamentTradeVolume;
+  if (typeof tournamentTradeVolume !== 'number' && typeof totalBank === 'number') {
+    tournamentTradeVolume = Math.round(totalBank * 5.88);
+  }
+
+  // Cập nhật UI
+  document.getElementById('tournament-bank').textContent = formatNumber(Math.round(tournamentBank));
+  document.getElementById('burn-bank').textContent = formatNumber(Math.round(burnBank));
+  document.getElementById('total-bank').textContent = formatNumber(Math.round(totalBank));
+  document.getElementById('live-supply').textContent = formatNumber(Math.round(liveTokenSupply));
+  document.getElementById('online-players').textContent = formatNumber(onlinePlayers);
+  document.getElementById('tournament-trade-volume').textContent = formatNumber(Math.round(tournamentTradeVolume));
 
   // Gọi hàm renderAutoTable
-  renderAutoTable(rewardBank);
+  renderAutoTable(tournamentBank);
 }
 
 // Hàm cập nhật chi tiết Pixel (Đã viết lại)
@@ -155,9 +179,32 @@ document.addEventListener('DOMContentLoaded', () => {
   const refreshBtn = document.getElementById('refresh-chart-btn');
   if (refreshBtn) {
     refreshBtn.addEventListener('click', () => {
-      fetchDataAndUpdate();
+      // Vẽ lại cả 4 biểu đồ với range hiện tại (hoặc mặc định là 'all')
+      renderChart('all');
+      renderCustomChart('liveTokenChart', { current: liveTokenChartInstance }, 'liveTokenSupply', 'all');
+      renderCustomChart('onlinePlayersChart', { current: onlinePlayersChartInstance }, 'onlinePlayers', 'all');
+      renderCustomChart('tradeVolumeChart', { current: tradeVolumeChartInstance }, 'tournamentTradeVolume', 'all');
     });
   }
+
+  // Filter cho Live Token Supply
+  document.getElementById('chart-filter-live-token').addEventListener('click', (e) => {
+    if (e.target.tagName === 'BUTTON') {
+      renderCustomChart('liveTokenChart', { current: liveTokenChartInstance }, 'liveTokenSupply', e.target.dataset.range);
+    }
+  });
+  // Filter cho Online Players
+  document.getElementById('chart-filter-online-players').addEventListener('click', (e) => {
+    if (e.target.tagName === 'BUTTON') {
+      renderCustomChart('onlinePlayersChart', { current: onlinePlayersChartInstance }, 'onlinePlayers', e.target.dataset.range);
+    }
+  });
+  // Filter cho Tournament Trade Volume
+  document.getElementById('chart-filter-trade-volume').addEventListener('click', (e) => {
+    if (e.target.tagName === 'BUTTON') {
+      renderCustomChart('tradeVolumeChart', { current: tradeVolumeChartInstance }, 'tournamentTradeVolume', e.target.dataset.range);
+    }
+  });
 });
 
 function handleExcelUpload(event) {
@@ -444,6 +491,10 @@ fetch('history.json')
         renderChart('custom', { start, end });
       }
     });
+    // Vẽ các biểu đồ phụ lần đầu
+    renderCustomChart('liveTokenChart', { current: liveTokenChartInstance }, 'liveTokenSupply', 'all');
+    renderCustomChart('onlinePlayersChart', { current: onlinePlayersChartInstance }, 'onlinePlayers', 'all');
+    renderCustomChart('tradeVolumeChart', { current: tradeVolumeChartInstance }, 'tournamentTradeVolume', 'all');
   });
 
 function getDeltaAt(history, nowIdx, msAgo) {
@@ -471,3 +522,49 @@ historyData.forEach((point, idx) => {
   const delta1w = getDeltaAt(historyData, idx, ms1w);
   // Hiển thị các delta này bên cạnh giá trị point.rewardBank
 });
+
+// --- Thêm các biến toàn cục cho các biểu đồ mới ---
+let liveTokenChartInstance = null;
+let onlinePlayersChartInstance = null;
+let tradeVolumeChartInstance = null;
+
+// --- Hàm vẽ biểu đồ chung cho các trường ---
+function renderCustomChart(canvasId, chartInstanceRef, field, range = 'all') {
+  const data = filterData(range);
+  if (chartInstanceRef && chartInstanceRef.current) chartInstanceRef.current.destroy();
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  if (!data.length) {
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.fillStyle = 'white';
+    ctx.font = '16px "M PLUS Rounded 1c"';
+    ctx.textAlign = 'center';
+    ctx.fillText('No data available for this range.', ctx.canvas.width / 2, ctx.canvas.height / 2);
+    chartInstanceRef.current = null;
+    return;
+  }
+  const labels = data.map((d) => new Date(d.timestamp).toLocaleString());
+  const values = data.map((d) => d[field]);
+  chartInstanceRef.current = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: field === 'liveTokenSupply' ? 'Live Token Supply' : field === 'onlinePlayers' ? 'Online Players' : 'Tournament Trade Volume (PX)',
+          data: values,
+          borderColor: field === 'liveTokenSupply' ? '#ffb300' : field === 'onlinePlayers' ? '#00e676' : '#00bcd4',
+          backgroundColor: 'rgba(0,242,234,0.1)',
+          fill: true,
+          tension: 0.2,
+        },
+      ],
+    },
+    options: {
+      plugins: { legend: { labels: { color: '#00f2ea' } } },
+      scales: {
+        x: { ticks: { color: '#fff' } },
+        y: { ticks: { color: '#fff' } },
+      },
+    },
+  });
+}

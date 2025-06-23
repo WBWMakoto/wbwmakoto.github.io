@@ -669,7 +669,10 @@ footer a:hover {
     margin-right: 2px;
 }
 
-#chart-container {
+#chart-container,
+#chart-container-live-token,
+#chart-container-online-players,
+#chart-container-trade-volume {
     position: relative;
     border-radius: 10px;
     margin-bottom: 18px;
@@ -679,7 +682,10 @@ footer a:hover {
     min-width: 0;
 }
 
-#chart-container::before {
+#chart-container::before,
+#chart-container-live-token::before,
+#chart-container-online-players::before,
+#chart-container-trade-volume::before {
     content: '';
     position: absolute;
     top: 0;
@@ -691,7 +697,9 @@ footer a:hover {
     z-index: 0;
 }
 
-#tournamentChart {
+#liveTokenChart,
+#onlinePlayersChart,
+#tradeVolumeChart {
     position: relative;
     z-index: 1;
     background-color: transparent !important;
@@ -704,11 +712,18 @@ footer a:hover {
 }
 
 @media (max-width: 600px) {
-    #chart-container {
+
+    #chart-container,
+    #chart-container-live-token,
+    #chart-container-online-players,
+    #chart-container-trade-volume {
         padding: 4px;
     }
 
-    #tournamentChart {
+    #tournamentChart,
+    #liveTokenChart,
+    #onlinePlayersChart,
+    #tradeVolumeChart {
         height: 140px !important;
         min-height: 80px;
         max-height: 180px;

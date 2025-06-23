@@ -67,6 +67,14 @@
                     <p id="online-players">Not Available</p>
                 </div>
             </div>
+            <div class="stat-card">
+                <img src="images/tradevolume.png" alt="Trade Volume Logo">
+                <div>
+                    <h4>Tournament Trade Volume (PX)</h4>
+                    <p><span id="tournament-trade-volume">Not Available</span> <img class="inline-logo"
+                            src="images/notpixellogov1.png" alt="PX Logo"></p>
+                </div>
+            </div>
         </section>
 
         <section id="pixel-details" class="card">
@@ -95,6 +103,45 @@
                     Chart</button>
                 <div id="chart-container">
                     <canvas id="tournamentChart" height="220"></canvas>
+                </div>
+                <div class="chart-section">
+                    <h4 style="color:#00f2ea;text-align:center;margin:18px 0 6px 0;">Live Token Supply</h4>
+                    <div class="chart-filter" id="chart-filter-live-token">
+                        <button data-range="all">All</button>
+                        <button data-range="minute">Last 60 minutes</button>
+                        <button data-range="hour">Last 24 hours</button>
+                        <button data-range="day">Last 7 days</button>
+                        <button data-range="week">Last 30 days</button>
+                    </div>
+                    <div id="chart-container-live-token">
+                        <canvas id="liveTokenChart" height="220"></canvas>
+                    </div>
+                </div>
+                <div class="chart-section">
+                    <h4 style="color:#00f2ea;text-align:center;margin:18px 0 6px 0;">App Online Players</h4>
+                    <div class="chart-filter" id="chart-filter-online-players">
+                        <button data-range="all">All</button>
+                        <button data-range="minute">Last 60 minutes</button>
+                        <button data-range="hour">Last 24 hours</button>
+                        <button data-range="day">Last 7 days</button>
+                        <button data-range="week">Last 30 days</button>
+                    </div>
+                    <div id="chart-container-online-players">
+                        <canvas id="onlinePlayersChart" height="220"></canvas>
+                    </div>
+                </div>
+                <div class="chart-section">
+                    <h4 style="color:#00f2ea;text-align:center;margin:18px 0 6px 0;">Tournament Trade Volume (PX)</h4>
+                    <div class="chart-filter" id="chart-filter-trade-volume">
+                        <button data-range="all">All</button>
+                        <button data-range="minute">Last 60 minutes</button>
+                        <button data-range="hour">Last 24 hours</button>
+                        <button data-range="day">Last 7 days</button>
+                        <button data-range="week">Last 30 days</button>
+                    </div>
+                    <div id="chart-container-trade-volume">
+                        <canvas id="tradeVolumeChart" height="220"></canvas>
+                    </div>
                 </div>
                 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                 <p><img src="images/notpixellogov1.png" class="inline-logo" alt="PX Logo"> <strong>Area:</strong>
