@@ -81,6 +81,26 @@
             <h2><img src="images/notpixellogov1.png" class="inline-logo" alt="PX Logo"> Details</h2>
             <div id="auto-table-container"></div>
             <div class="pixel-info">
+                <!-- Đưa filter custom range và chú thích lên trên -->
+                <div style="text-align:center; margin-bottom: 18px;">
+                    <div style="color:#00f2ea; font-size:1.05em; font-weight:600; margin-bottom:2px;">
+                        Recommend CTRL + F5 (PC, Laptop) và Refresh (Phone) to matching newest data "sooner, more real
+                        time"
+                    </div>
+                    <div style="color:#aaa; font-size:0.98em; margin-bottom:10px;">
+                        You can view <b>"custom range"</b> by selecting begin and end time in the below blocks<br>
+                        <span style="font-size:0.97em;">(TIPS: you can left the first block if you want to select from
+                            the firsts dataframe and left the second block for ending at the newest dataframe)</span>
+                    </div>
+                    <input type="datetime-local" id="start-datetime"
+                        style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; background-color: #333; color: white; margin-right: 8px;">
+                    <span style="color: white; margin: 0 10px; font-weight:600;">to</span>
+                    <input type="datetime-local" id="end-datetime"
+                        style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; background-color: #333; color: white; margin-left: 8px;">
+                    <button id="custom-range-btn"
+                        style="padding: 5px 10px; border-radius: 5px; border: none; background-color: #4CAF50; color: white; margin-left: 10px; cursor: pointer; font-weight:600;">Apply
+                        to all graphs</button>
+                </div>
                 <!-- Biểu đồ Tournament Bank -->
                 <div class="chart-title"
                     style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:2px;">
@@ -89,28 +109,6 @@
                         Bank</span>
                     <img src="images/tournamentbanklogo.png" alt="Tournament Bank Logo" class="inline-logo">
                 </div>
-                <div class="chart-filter" id="chart-filter-tournament">
-                    <button data-range="all">All</button>
-                    <button data-range="minute">Last 60 minutes</button>
-                    <button data-range="hour">Last 24 hours</button>
-                    <button data-range="day">Last 7 days</button>
-                    <button data-range="week">Last 30 days</button>
-                </div>
-                <div style="margin-top: 10px; text-align:center;">
-                    <span style="color:#aaa;font-size:0.98em;margin-right:8px;">Left begining day to select first data
-                        frame and left ending day to select the last data frame</span>
-                    <input type="datetime-local" id="start-datetime"
-                        style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; background-color: #333; color: white;">
-                    <span style="color: white; margin: 0 10px;">to</span>
-                    <input type="datetime-local" id="end-datetime"
-                        style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; background-color: #333; color: white;">
-                    <button id="custom-range-btn"
-                        style="padding: 5px 10px; border-radius: 5px; border: none; background-color: #4CAF50; color: white; margin-left: 10px; cursor: pointer;">Apply
-                        to all graphs</button>
-                </div>
-                <button id="refresh-chart-btn"
-                    style="margin: 8px 0 12px 0; padding: 6px 18px; border-radius: 6px; background: #00f2ea; color: #222; font-weight: 600; border: none; cursor: pointer;">Refresh
-                    all charts (recommend use Ctrl + F5 or refresh page on phone)</button>
                 <div id="chart-container" class="chart-bg">
                     <canvas id="tournamentChart" height="220"></canvas>
                 </div>
@@ -123,13 +121,6 @@
                         <img src="images/notpixellogov1.png" alt="Live Token Supply Logo" class="inline-logo">
                     </div>
                     <h4 style="color:#00f2ea;text-align:center;margin:18px 0 6px 0;display:none;">Live Token Supply</h4>
-                    <div class="chart-filter" id="chart-filter-live-token">
-                        <button data-range="all">All</button>
-                        <button data-range="minute">Last 60 minutes</button>
-                        <button data-range="hour">Last 24 hours</button>
-                        <button data-range="day">Last 7 days</button>
-                        <button data-range="week">Last 30 days</button>
-                    </div>
                     <div id="chart-container-live-token" class="chart-bg">
                         <canvas id="liveTokenChart" height="220"></canvas>
                     </div>
@@ -144,13 +135,6 @@
                     </div>
                     <h4 style="color:#00f2ea;text-align:center;margin:18px 0 6px 0;display:none;">App Online Players
                     </h4>
-                    <div class="chart-filter" id="chart-filter-online-players">
-                        <button data-range="all">All</button>
-                        <button data-range="minute">Last 60 minutes</button>
-                        <button data-range="hour">Last 24 hours</button>
-                        <button data-range="day">Last 7 days</button>
-                        <button data-range="week">Last 30 days</button>
-                    </div>
                     <div id="chart-container-online-players" class="chart-bg">
                         <canvas id="onlinePlayersChart" height="220"></canvas>
                     </div>
@@ -165,13 +149,6 @@
                     </div>
                     <h4 style="color:#00f2ea;text-align:center;margin:18px 0 6px 0;display:none;">Tournament PX Trade
                         Volume</h4>
-                    <div class="chart-filter" id="chart-filter-trade-volume">
-                        <button data-range="all">All</button>
-                        <button data-range="minute">Last 60 minutes</button>
-                        <button data-range="hour">Last 24 hours</button>
-                        <button data-range="day">Last 7 days</button>
-                        <button data-range="week">Last 30 days</button>
-                    </div>
                     <div id="chart-container-trade-volume" class="chart-bg">
                         <canvas id="tradeVolumeChart" height="220"></canvas>
                     </div>

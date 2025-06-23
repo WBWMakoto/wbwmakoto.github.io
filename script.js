@@ -175,83 +175,22 @@ document.addEventListener('DOMContentLoaded', () => {
     excelInput.addEventListener('change', handleExcelUpload);
   }
 
-  // Sửa nút Refresh all charts để vẽ lại đồng thời cả 4 biểu đồ với filter hiện tại
-  const refreshBtn = document.getElementById('refresh-chart-btn');
-  if (refreshBtn) {
-    refreshBtn.addEventListener('click', () => {
-      // Lấy filter hiện tại của chart 1
-      const activeBtn = document.querySelector('#chart-filter button.active');
-      let range = 'all';
-      if (activeBtn && activeBtn.dataset.range) range = activeBtn.dataset.range;
-      // Nếu là custom, lấy giá trị custom
-      if (range === 'custom') {
-        const start = document.getElementById('start-datetime').value;
-        const end = document.getElementById('end-datetime').value;
-        renderChart('custom', { start, end });
-        renderCustomChart('liveTokenChart', { current: liveTokenChartInstance }, 'liveTokenSupply', 'custom', { start, end });
-        renderCustomChart('onlinePlayersChart', { current: onlinePlayersChartInstance }, 'onlinePlayers', 'custom', { start, end });
-        renderCustomChart('tradeVolumeChart', { current: tradeVolumeChartInstance }, 'tournamentTradeVolume', 'custom', { start, end });
-      } else {
-        renderChart(range);
-        renderCustomChart('liveTokenChart', { current: liveTokenChartInstance }, 'liveTokenSupply', range);
-        renderCustomChart('onlinePlayersChart', { current: onlinePlayersChartInstance }, 'onlinePlayers', range);
-        renderCustomChart('tradeVolumeChart', { current: tradeVolumeChartInstance }, 'tournamentTradeVolume', range);
-      }
-    });
-  }
-
-  // --- FILTER PRESET CHART 1 (TỰ DO, KHÔNG ĐỒNG BỘ) ---
-  document.getElementById('chart-filter-tournament').addEventListener('click', (e) => {
-    if (e.target.tagName === 'BUTTON') {
-      document.querySelectorAll('#chart-filter-tournament button').forEach((btn) => btn.classList.remove('active'));
-      e.target.classList.add('active');
-      renderChart(e.target.dataset.range);
-    }
-  });
-  // --- FILTER PRESET CHART PHỤ (KHÔNG ĐỔI) ---
-  document.getElementById('chart-filter-live-token').addEventListener('click', (e) => {
-    if (e.target.tagName === 'BUTTON') {
-      document.querySelectorAll('#chart-filter-live-token button').forEach((btn) => btn.classList.remove('active'));
-      e.target.classList.add('active');
-      renderCustomChart('liveTokenChart', { current: liveTokenChartInstance }, 'liveTokenSupply', e.target.dataset.range);
-    }
-  });
-  document.getElementById('chart-filter-online-players').addEventListener('click', (e) => {
-    if (e.target.tagName === 'BUTTON') {
-      document.querySelectorAll('#chart-filter-online-players button').forEach((btn) => btn.classList.remove('active'));
-      e.target.classList.add('active');
-      renderCustomChart('onlinePlayersChart', { current: onlinePlayersChartInstance }, 'onlinePlayers', e.target.dataset.range);
-    }
-  });
-  document.getElementById('chart-filter-trade-volume').addEventListener('click', (e) => {
-    if (e.target.tagName === 'BUTTON') {
-      document.querySelectorAll('#chart-filter-trade-volume button').forEach((btn) => btn.classList.remove('active'));
-      e.target.classList.add('active');
-      renderCustomChart('tradeVolumeChart', { current: tradeVolumeChartInstance }, 'tournamentTradeVolume', e.target.dataset.range);
-    }
-  });
-  // --- CUSTOM RANGE: ĐỒNG BỘ CẢ 4 CHART ---
-  document.getElementById('custom-range-btn').addEventListener('click', () => {
-    // Bỏ active preset ở cả 4 chart
-    ['chart-filter-tournament', 'chart-filter-live-token', 'chart-filter-online-players', 'chart-filter-trade-volume'].forEach((id) => {
-      document.querySelectorAll(`#${id} button`).forEach((btn) => btn.classList.remove('active'));
-    });
-    // Lấy giá trị custom range
+  // --- FILTER RANGE DUY NHẤT: KHI BẤM 'APPLY TO ALL GRAPHS' HOẶC LOAD TRANG, ĐỒNG BỘ 4 CHART ---
+  function applyRangeToAllCharts() {
     let start = document.getElementById('start-datetime').value;
     let end = document.getElementById('end-datetime').value;
-    // Nếu thiếu start/end thì lấy mốc đầu/cuối dữ liệu
-    if (!start || !end) {
-      // Lấy historyData từ window nếu chưa có
-      let data = window.historyData || [];
-      if (data.length === 0 && typeof historyData !== 'undefined') data = historyData;
-      if (!start && data.length > 0) start = data[0].timestamp;
-      if (!end && data.length > 0) end = data[data.length - 1].timestamp;
-    }
+    let data = window.historyData || [];
+    if (data.length === 0 && typeof historyData !== 'undefined') data = historyData;
+    if (!start && data.length > 0) start = data[0].timestamp;
+    if (!end && data.length > 0) end = data[data.length - 1].timestamp;
     renderChart('custom', { start, end });
     renderCustomChart('liveTokenChart', { current: liveTokenChartInstance }, 'liveTokenSupply', 'custom', { start, end });
     renderCustomChart('onlinePlayersChart', { current: onlinePlayersChartInstance }, 'onlinePlayers', 'custom', { start, end });
     renderCustomChart('tradeVolumeChart', { current: tradeVolumeChartInstance }, 'tournamentTradeVolume', 'custom', { start, end });
-  });
+  }
+  document.getElementById('custom-range-btn').addEventListener('click', applyRangeToAllCharts);
+  // Khi load trang, tự động apply range mặc định
+  window.addEventListener('DOMContentLoaded', applyRangeToAllCharts);
 });
 
 function handleExcelUpload(event) {
