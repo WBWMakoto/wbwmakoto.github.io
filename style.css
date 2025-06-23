@@ -733,3 +733,12 @@ footer a:hover {
         padding: 4px 7px;
     }
 }
+
+.chart-filter button.active {
+    background: var(--accent-color);
+    color: #222;
+    font-weight: bold;
+    border: 2px solid #fff;
+    box-shadow: 0 0 8px var(--accent-color);
+    transition: background 0.2s, color 0.2s;
+}

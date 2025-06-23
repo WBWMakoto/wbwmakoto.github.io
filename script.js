@@ -203,18 +203,25 @@ document.addEventListener('DOMContentLoaded', () => {
   // Filter cho Live Token Supply
   document.getElementById('chart-filter-live-token').addEventListener('click', (e) => {
     if (e.target.tagName === 'BUTTON') {
+      // Set active
+      document.querySelectorAll('#chart-filter-live-token button').forEach((btn) => btn.classList.remove('active'));
+      e.target.classList.add('active');
       renderCustomChart('liveTokenChart', { current: liveTokenChartInstance }, 'liveTokenSupply', e.target.dataset.range);
     }
   });
   // Filter cho Online Players
   document.getElementById('chart-filter-online-players').addEventListener('click', (e) => {
     if (e.target.tagName === 'BUTTON') {
+      document.querySelectorAll('#chart-filter-online-players button').forEach((btn) => btn.classList.remove('active'));
+      e.target.classList.add('active');
       renderCustomChart('onlinePlayersChart', { current: onlinePlayersChartInstance }, 'onlinePlayers', e.target.dataset.range);
     }
   });
   // Filter cho Tournament Trade Volume
   document.getElementById('chart-filter-trade-volume').addEventListener('click', (e) => {
     if (e.target.tagName === 'BUTTON') {
+      document.querySelectorAll('#chart-filter-trade-volume button').forEach((btn) => btn.classList.remove('active'));
+      e.target.classList.add('active');
       renderCustomChart('tradeVolumeChart', { current: tradeVolumeChartInstance }, 'tournamentTradeVolume', e.target.dataset.range);
     }
   });
@@ -223,11 +230,15 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('chart-filter').addEventListener('click', (event) => {
     const target = event.target;
     if (target.tagName !== 'BUTTON') return;
-
     if (target.dataset.range) {
-      // Đánh dấu nút active
       document.querySelectorAll('#chart-filter button').forEach((btn) => btn.classList.remove('active'));
       target.classList.add('active');
+      // Đồng bộ UI filter cho 3 chart phụ
+      ['chart-filter-live-token', 'chart-filter-online-players', 'chart-filter-trade-volume'].forEach((id) => {
+        document.querySelectorAll(`#${id} button`).forEach((btn) => btn.classList.remove('active'));
+        const btn = document.querySelector(`#${id} button[data-range="${target.dataset.range}"]`);
+        if (btn) btn.classList.add('active');
+      });
       renderChart(target.dataset.range);
       renderCustomChart('liveTokenChart', { current: liveTokenChartInstance }, 'liveTokenSupply', target.dataset.range);
       renderCustomChart('onlinePlayersChart', { current: onlinePlayersChartInstance }, 'onlinePlayers', target.dataset.range);
@@ -235,8 +246,11 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (target.id === 'custom-range-btn') {
       const start = document.getElementById('start-datetime').value;
       const end = document.getElementById('end-datetime').value;
-      // Đánh dấu custom là active
       document.querySelectorAll('#chart-filter button').forEach((btn) => btn.classList.remove('active'));
+      // Đồng bộ UI filter cho 3 chart phụ (bỏ active hết)
+      ['chart-filter-live-token', 'chart-filter-online-players', 'chart-filter-trade-volume'].forEach((id) => {
+        document.querySelectorAll(`#${id} button`).forEach((btn) => btn.classList.remove('active'));
+      });
       renderChart('custom', { start, end });
       renderCustomChart('liveTokenChart', { current: liveTokenChartInstance }, 'liveTokenSupply', 'custom', { start, end });
       renderCustomChart('onlinePlayersChart', { current: onlinePlayersChartInstance }, 'onlinePlayers', 'custom', { start, end });
@@ -472,12 +486,45 @@ function filterData(range, customRange = {}) {
   return historyData.filter((d) => range === 'all' || now - new Date(d.timestamp).getTime() <= ms);
 }
 
+function getSmartXTicksConfig(labels) {
+  // Nếu số điểm > 8 thì nghiêng, giảm số nhãn, chỉ hiện giờ:phút
+  if (labels.length > 8) {
+    return {
+      color: '#fff',
+      font: { size: 12, family: 'M PLUS Rounded 1c' },
+      maxRotation: 45,
+      minRotation: 30,
+      autoSkip: true,
+      maxTicksLimit: 4,
+      padding: 4,
+      callback: function (value, index, values) {
+        const label = this.getLabelForValue(value);
+        const date = new Date(label);
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      },
+    };
+  } else {
+    // Ít điểm: nằm ngang, hiện ngày + giờ
+    return {
+      color: '#fff',
+      font: { size: 13, family: 'M PLUS Rounded 1c' },
+      maxRotation: 0,
+      minRotation: 0,
+      autoSkip: false,
+      maxTicksLimit: labels.length,
+      padding: 6,
+      callback: function (value, index, values) {
+        const label = this.getLabelForValue(value);
+        const date = new Date(label);
+        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      },
+    };
+  }
+}
+
 function renderChart(range = 'all', customRange = {}) {
   const data = filterData(range, customRange);
-
   if (chartInstance) chartInstance.destroy();
-
-  // Nếu không đủ 2 điểm dữ liệu, hiển thị thông báo đẹp
   const ctx = document.getElementById('tournamentChart').getContext('2d');
   if (data.length < 2) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -488,10 +535,8 @@ function renderChart(range = 'all', customRange = {}) {
     chartInstance = null;
     return;
   }
-
   const labels = data.map((d) => new Date(d.timestamp).toLocaleString());
   const values = data.map((d) => d.rewardBank);
-
   chartInstance = new Chart(ctx, {
     type: 'line',
     data: {
@@ -534,17 +579,7 @@ function renderChart(range = 'all', customRange = {}) {
       },
       layout: { padding: 10 },
       scales: {
-        x: {
-          ticks: {
-            color: '#fff',
-            font: { size: 13, family: 'M PLUS Rounded 1c' },
-            maxRotation: 30,
-            minRotation: 0,
-            autoSkip: true,
-            maxTicksLimit: 6,
-            padding: 6,
-          },
-        },
+        x: getSmartXTicksConfig(labels),
         y: {
           ticks: {
             color: '#fff',
@@ -621,7 +656,6 @@ function renderCustomChart(canvasId, chartInstanceRef, field, range = 'all', cus
   const data = filterData(range, customRange);
   if (chartInstanceRef && chartInstanceRef.current) chartInstanceRef.current.destroy();
   const ctx = document.getElementById(canvasId).getContext('2d');
-  // Nếu không đủ 2 điểm dữ liệu, hiển thị thông báo đẹp
   if (!data.length || data.length < 2) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.fillStyle = 'white';
@@ -689,17 +723,7 @@ function renderCustomChart(canvasId, chartInstanceRef, field, range = 'all', cus
       },
       layout: { padding: 10 },
       scales: {
-        x: {
-          ticks: {
-            color: '#fff',
-            font: { size: 13, family: 'M PLUS Rounded 1c' },
-            maxRotation: 30,
-            minRotation: 0,
-            autoSkip: true,
-            maxTicksLimit: 6,
-            padding: 6,
-          },
-        },
+        x: getSmartXTicksConfig(labels),
         y: {
           ticks: {
             color: '#fff',
