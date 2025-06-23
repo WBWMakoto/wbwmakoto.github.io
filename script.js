@@ -465,7 +465,7 @@ function renderChart(range = 'all', customRange = {}) {
     ctx.fillStyle = 'white';
     ctx.font = '16px "M PLUS Rounded 1c"';
     ctx.textAlign = 'center';
-    ctx.fillText('No data available for this range.', ctx.canvas.width / 2, ctx.canvas.height / 2);
+    ctx.fillText('No Data Available Or Unknown error (mostly). Refresh the page and filter again to solve the problem (99.99% work)', ctx.canvas.width / 2, ctx.canvas.height / 2);
     chartInstance = null;
     return;
   }
@@ -530,28 +530,8 @@ fetch('history.json')
   .then((res) => res.json())
   .then((data) => {
     historyData = data;
-    renderChart('all');
-    // Gộp event listeners
-    document.getElementById('chart-filter').addEventListener('click', (event) => {
-      const target = event.target;
-      if (target.tagName !== 'BUTTON') return;
-
-      if (target.dataset.range) {
-        renderChart(target.dataset.range);
-      } else if (target.id === 'custom-range-btn') {
-        const start = document.getElementById('start-datetime').value;
-        const end = document.getElementById('end-datetime').value;
-        renderChart('custom', { start, end });
-        // Đồng bộ filter custom cho cả 3 biểu đồ phụ
-        renderCustomChart('liveTokenChart', { current: liveTokenChartInstance }, 'liveTokenSupply', 'custom', { start, end });
-        renderCustomChart('onlinePlayersChart', { current: onlinePlayersChartInstance }, 'onlinePlayers', 'custom', { start, end });
-        renderCustomChart('tradeVolumeChart', { current: tradeVolumeChartInstance }, 'tournamentTradeVolume', 'custom', { start, end });
-      }
-    });
-    // Vẽ các biểu đồ phụ lần đầu
-    renderCustomChart('liveTokenChart', { current: liveTokenChartInstance }, 'liveTokenSupply', 'all');
-    renderCustomChart('onlinePlayersChart', { current: onlinePlayersChartInstance }, 'onlinePlayers', 'all');
-    renderCustomChart('tradeVolumeChart', { current: tradeVolumeChartInstance }, 'tournamentTradeVolume', 'all');
+    window.historyData = data;
+    applyRangeToAllCharts(); // Đảm bảo 4 chart luôn có dữ liệu mặc định khi vào trang
   });
 
 function getDeltaAt(history, nowIdx, msAgo) {
@@ -595,7 +575,7 @@ function renderCustomChart(canvasId, chartInstanceRef, field, range = 'all', cus
     ctx.fillStyle = 'white';
     ctx.font = '16px "M PLUS Rounded 1c"';
     ctx.textAlign = 'center';
-    ctx.fillText('No data available for this range.', ctx.canvas.width / 2, ctx.canvas.height / 2);
+    ctx.fillText('No Data Available Or Unknown error (mostly). Refresh the page and filter again to solve the problem (99.99% work)', ctx.canvas.width / 2, ctx.canvas.height / 2);
     chartInstanceRef.current = null;
     return;
   }
