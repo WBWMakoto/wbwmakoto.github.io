@@ -11,34 +11,8 @@ window.tournamentChartInstanceRef = { current: null };
 window.liveTokenChartInstanceRef = { current: null };
 window.onlinePlayersChartInstanceRef = { current: null };
 window.tradeVolumeChartInstanceRef = { current: null };
+window.pxRemainChartInstanceRef = { current: null };
 let prevRowValues = null;
-
-// --- PX Minted/Remain API ---
-const PX_API_URL = 'https://tonapi.io/v2/nfts/collections/EQDxPnc-hOZTW5pxFFt56pny-W3UuEs7ktzf-tAGNCkxtOl1';
-const PX_TOTAL = 1048576;
-
-async function updatePXStats() {
-  const pxStatsEl = document.getElementById('px-stats');
-  try {
-    const res = await fetch(PX_API_URL);
-    if (!res.ok) throw new Error('API Error');
-    const data = await res.json();
-    const minted = typeof data.next_item_index === 'number' ? data.next_item_index : null;
-    if (minted === null) throw new Error('No Data');
-    const mintedPercent = ((minted / PX_TOTAL) * 100).toFixed(2);
-    const remain = PX_TOTAL - minted;
-    const remainPercent = (100 - mintedPercent).toFixed(2);
-    pxStatsEl.innerHTML = `
-      <span class='px-total'>Total PX: ${PX_TOTAL.toLocaleString()} <img src='images/notpixellogov1.png' class='inline-logo'></span>
-      <span class='px-divider'>|</span>
-      <span class='px-minted'>PX Minted: ${minted.toLocaleString()} (${mintedPercent}%) <img src='images/notpixellogov1.png' class='inline-logo'></span>
-      <span class='px-divider'>|</span>
-      <span class='px-remain'>PX Remain: ${remain.toLocaleString()} (${remainPercent}%) <img src='images/notpixellogov1.png' class='inline-logo'></span>
-    `;
-  } catch (e) {
-    pxStatsEl.innerHTML = 'No Available / Error';
-  }
-}
 
 // Hàm để định dạng số cho dễ đọc (ví dụ: 1,000,000)
 function formatNumber(num) {
@@ -131,13 +105,13 @@ function updatePixelDetails(infoData, filterData) {
       const percentage = totalPixelsInList > 0 ? ((count / totalPixelsInList) * 100).toFixed(2) : '0.00';
       const row = tableBody.insertRow();
       row.innerHTML = `
-                <td class="price-cell">
-                    <img class="inline-logo" src="images/notpixellogov1.png" alt="PX">
-                    <span>${formatNumber(Number(price))}</span>
-                </td>
-                <td>${formatNumber(count)}</td>
-                <td>${percentage}%</td>
-            `;
+        <td class="price-cell">
+          <img class="inline-logo" src="images/notpixellogov1.png" alt="PX">
+          <span>${formatNumber(Number(price))}</span>
+        </td>
+        <td>${formatNumber(count)}</td>
+        <td>${percentage}%</td>
+      `;
     });
   } else {
     const row = tableBody.insertRow();
@@ -153,13 +127,9 @@ function updatePixelDetails(infoData, filterData) {
     document.getElementById('current-price').textContent = formatNumber(nextPrice);
 
     const statusEl = document.getElementById('pixel-status');
-    if (isAvailable) {
-      statusEl.innerHTML = `The pixel is not lockable & you can buy it if you are whale enough to pay ${formatNumber(
-        nextPrice
-      )} <img class="inline-logo" src="images/notpixellogov1.png" alt="PX Logo">`;
-    } else {
-      statusEl.innerHTML = `The pixel is lockable and you can't buy it, LOL maybe a whale is acting, stay ALERT xD`;
-    }
+    statusEl.innerHTML = isAvailable
+      ? `The pixel is not lockable & you can buy it if you are whale enough to pay ${formatNumber(nextPrice)} <img class="inline-logo" src="images/notpixellogov1.png" alt="PX Logo">`
+      : `The pixel is lockable and you can't buy it, LOL maybe a whale is acting, stay ALERT xD`;
   } else {
     document.getElementById('most-expensive-coords').textContent = '(N/A, N/A)';
     document.getElementById('most-expensive-link').href = '#';
@@ -169,8 +139,7 @@ function updatePixelDetails(infoData, filterData) {
   }
 }
 
-// --- PHẦN XỬ LÝ BIỂU ĐỒ ---
-
+// --- FILTER VÀ BIỂU ĐỒ ---
 function filterData(range, customRange = {}) {
   if (!historyData || historyData.length === 0) return [];
 
@@ -192,24 +161,13 @@ function filterData(range, customRange = {}) {
   }
 
   const now = Date.now();
-  let ms;
-  switch (range) {
-    case 'hour':
-      ms = 60 * 60 * 1000;
-      break;
-    case 'day':
-      ms = 24 * 60 * 60 * 1000;
-      break;
-    case 'week':
-      ms = 7 * 24 * 60 * 60 * 1000;
-      break;
-    case 'month':
-      ms = 30 * 24 * 60 * 60 * 1000;
-      break;
-    case 'all':
-    default:
-      return historyData;
-  }
+  const ranges = {
+    hour: 60 * 60 * 1000,
+    day: 24 * 60 * 60 * 1000,
+    week: 7 * 24 * 60 * 60 * 1000,
+    month: 30 * 24 * 60 * 60 * 1000,
+  };
+  const ms = ranges[range] || Infinity;
   return historyData.filter((d) => now - new Date(d.timestamp).getTime() <= ms);
 }
 
@@ -262,24 +220,111 @@ function renderChartGeneric(canvasId, chartInstanceRef, field, label, color, ran
       plugins: {
         legend: { labels: { color, font: { weight: 'bold', size: 15, family: 'M PLUS Rounded 1c' } } },
         tooltip: {
+          callbacks: { label: (ctx) => `${label}: ${ctx.formattedValue}` },
+        },
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: '#fff',
+            font: { size: 13, family: 'M PLUS Rounded 1c' },
+            maxRotation: 30,
+            autoSkip: true,
+            maxTicksLimit: 6,
+            padding: 6,
+          },
+        },
+        y: { ticks: { color: '#fff', font: { size: 13, family: 'M PLUS Rounded 1c' }, padding: 6 } },
+      },
+    },
+  });
+}
+
+function renderPXRemainChart(range = 'all', customRange = {}) {
+  const PX_TOTAL = 1048576;
+  const data = filterData(range, customRange);
+  if (!data || data.length < 2) {
+    const ctx = document.getElementById('pxRemainChart').getContext('2d');
+    drawNoDataMessage(ctx);
+    window.pxRemainChartInstanceRef.current = null;
+    return;
+  }
+
+  const labels = data.map((d) => new Date(d.timestamp).toLocaleString());
+  const values = data.map((d) => (typeof d.pxMinted === 'number' ? PX_TOTAL - d.pxMinted : null));
+
+  const ctx = document.getElementById('pxRemainChart').getContext('2d');
+  if (window.pxRemainChartInstanceRef.current) {
+    window.pxRemainChartInstanceRef.current.destroy();
+  }
+
+  window.pxRemainChartInstanceRef.current = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'PX Remain',
+          data: values,
+          borderColor: '#ff5252',
+          backgroundColor: '#ff525222',
+          fill: true,
+          tension: 0.2,
+          pointBackgroundColor: '#fff',
+          pointBorderColor: '#ff5252',
+          pointRadius: 4,
+          pointHoverRadius: 7,
+          pointBorderWidth: 2,
+        },
+      ],
+    },
+    options: {
+      maintainAspectRatio: false,
+      responsive: true,
+      plugins: {
+        legend: {
+          labels: {
+            color: '#ff5252',
+            font: {
+              weight: 'bold',
+              size: 15,
+              family: 'M PLUS Rounded 1c',
+            },
+          },
+        },
+        tooltip: {
           enabled: true,
           backgroundColor: '#222',
-          titleColor: color,
+          titleColor: '#ff5252',
           bodyColor: '#fff',
-          borderColor: color,
+          borderColor: '#ff5252',
           borderWidth: 2,
           titleFont: { weight: 'bold', size: 15, family: 'M PLUS Rounded 1c' },
           bodyFont: { size: 15, family: 'M PLUS Rounded 1c' },
           padding: 10,
           callbacks: {
-            label: (context) => `${label}: ${context.formattedValue}`,
+            label: (context) => `PX Remain: ${context.formattedValue}`,
           },
         },
       },
-      layout: { padding: 10 },
       scales: {
-        x: { ticks: { color: '#fff', font: { size: 13, family: 'M PLUS Rounded 1c' }, maxRotation: 30, autoSkip: true, maxTicksLimit: 6, padding: 6 } },
-        y: { ticks: { color: '#fff', font: { size: 13, family: 'M PLUS Rounded 1c' }, padding: 6 } },
+        x: {
+          ticks: {
+            color: '#fff',
+            font: { size: 13, family: 'M PLUS Rounded 1c' },
+            maxRotation: 30,
+            autoSkip: true,
+            maxTicksLimit: 6,
+            padding: 6,
+          },
+        },
+        y: {
+          ticks: {
+            color: '#fff',
+            font: { size: 13, family: 'M PLUS Rounded 1c' },
+            padding: 6,
+          },
+        },
       },
     },
   });
@@ -290,6 +335,7 @@ function applyRangeToAllCharts(range = 'all', customRange = {}) {
   renderChartGeneric('liveTokenChart', 'liveTokenChartInstanceRef', 'liveTokenSupply', 'Live Token Supply', '#ffb300', range, customRange);
   renderChartGeneric('onlinePlayersChart', 'onlinePlayersChartInstanceRef', 'onlinePlayers', 'App Online Players', '#00e676', range, customRange);
   renderChartGeneric('tradeVolumeChart', 'tradeVolumeChartInstanceRef', 'tournamentTradeVolume', 'Tournament PX Trade Volume', '#00bcd4', range, customRange);
+  renderPXRemainChart(range, customRange);
 }
 
 // --- CÁC HÀM TIỆN ÍCH KHÁC (GIỮ NGUYÊN) ---
