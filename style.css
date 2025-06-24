@@ -300,6 +300,21 @@ header {
         bottom: 6px;
         right: 6px;
     }
+
+    #px-stats {
+        font-size: 1em;
+        text-align: left;
+        padding-left: 8px;
+    }
+
+    #px-stats span {
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    #px-stats .px-divider {
+        display: none;
+    }
 }
 
 /* Các style khác giữ nguyên */
@@ -732,4 +747,16 @@ footer a:hover {
         font-size: 0.95rem;
         padding: 4px 7px;
     }
+}
+
+.px-total {
+    color: #2196f3;
+}
+
+.px-minted {
+    color: #ff9800;
+}
+
+.px-remain {
+    color: #ff5252;
 }

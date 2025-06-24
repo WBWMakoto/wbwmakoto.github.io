@@ -13,6 +13,33 @@ window.onlinePlayersChartInstanceRef = { current: null };
 window.tradeVolumeChartInstanceRef = { current: null };
 let prevRowValues = null;
 
+// --- PX Minted/Remain API ---
+const PX_API_URL = 'https://tonapi.io/v2/nfts/collections/EQDxPnc-hOZTW5pxFFt56pny-W3UuEs7ktzf-tAGNCkxtOl1';
+const PX_TOTAL = 1048576;
+
+async function updatePXStats() {
+  const pxStatsEl = document.getElementById('px-stats');
+  try {
+    const res = await fetch(PX_API_URL);
+    if (!res.ok) throw new Error('API Error');
+    const data = await res.json();
+    const minted = typeof data.next_item_index === 'number' ? data.next_item_index : null;
+    if (minted === null) throw new Error('No Data');
+    const mintedPercent = ((minted / PX_TOTAL) * 100).toFixed(2);
+    const remain = PX_TOTAL - minted;
+    const remainPercent = (100 - mintedPercent).toFixed(2);
+    pxStatsEl.innerHTML = `
+      <span class='px-total'>Total PX: ${PX_TOTAL.toLocaleString()} <img src='images/notpixellogov1.png' class='inline-logo'></span>
+      <span class='px-divider'>|</span>
+      <span class='px-minted'>PX Minted: ${minted.toLocaleString()} (${mintedPercent}%) <img src='images/notpixellogov1.png' class='inline-logo'></span>
+      <span class='px-divider'>|</span>
+      <span class='px-remain'>PX Remain: ${remain.toLocaleString()} (${remainPercent}%) <img src='images/notpixellogov1.png' class='inline-logo'></span>
+    `;
+  } catch (e) {
+    pxStatsEl.innerHTML = 'No Available / Error';
+  }
+}
+
 // Hàm để định dạng số cho dễ đọc (ví dụ: 1,000,000)
 function formatNumber(num) {
   if (typeof num !== 'number' || isNaN(num)) return 'Not Available';
@@ -505,4 +532,54 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
   }
+
+  updatePXStats();
+  setInterval(updatePXStats, 10000);
 });
+
+// --- PX Remain Chart ---
+async function drawPXRemainChart() {
+  const ctx = document.getElementById('pxRemainChart').getContext('2d');
+  let history = [];
+  try {
+    const res = await fetch('history.json');
+    history = await res.json();
+  } catch (e) {
+    history = [];
+  }
+  const labels = history.map((h) => h.timestamp);
+  const pxMintedArr = history.map((h) => (typeof h.pxMinted === 'number' ? h.pxMinted : null));
+  const pxRemainArr = pxMintedArr.map((m) => (m !== null ? PX_TOTAL - m : null));
+  const data = {
+    labels,
+    datasets: [
+      {
+        label: 'PX Remain',
+        data: pxRemainArr,
+        borderColor: '#ff5252',
+        backgroundColor: 'rgba(255,82,82,0.15)',
+        pointRadius: 1.5,
+        borderWidth: 2,
+        tension: 0.2,
+        fill: true,
+      },
+    ],
+  };
+  if (window.pxRemainChartObj) window.pxRemainChartObj.destroy();
+  window.pxRemainChartObj = new Chart(ctx, {
+    type: 'line',
+    data,
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: { mode: 'index', intersect: false },
+      },
+      scales: {
+        x: { display: false },
+        y: { beginAtZero: true, color: '#fff' },
+      },
+    },
+  });
+}
+document.addEventListener('DOMContentLoaded', drawPXRemainChart);

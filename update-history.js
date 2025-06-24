@@ -16,6 +16,19 @@ async function main() {
   } catch (e) {
     onlinePlayers = null;
   }
+
+  // Fetch thêm API PX Minted
+  let pxMinted = null;
+  try {
+    const pxRes = await fetch('https://tonapi.io/v2/nfts/collections/EQDxPnc-hOZTW5pxFFt56pny-W3UuEs7ktzf-tAGNCkxtOl1');
+    const pxData = await pxRes.json();
+    if (typeof pxData.next_item_index === 'number') {
+      pxMinted = Math.max(0, pxData.next_item_index - 1);
+    }
+  } catch (e) {
+    pxMinted = null;
+  }
+
   const now = new Date().toISOString();
   let history = [];
   if (fs.existsSync(file)) {
@@ -57,6 +70,7 @@ async function main() {
     liveTokenSupply: liveTokenSupply,
     onlinePlayers: onlinePlayers,
     tournamentTradeVolume: tournamentTradeVolume,
+    pxMinted: pxMinted,
   });
   fs.writeFileSync(file, JSON.stringify(history, null, 2));
   console.log('Saved snapshot at', now);

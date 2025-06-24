@@ -25,6 +25,9 @@
             <h1 class="main-title">Not Pixel Dashboard</h1>
             <div class="subtitle-jp">ノットピクセル統計ダッシュボード</div>
             <p class="subtitle">Real-time Statistics for Not Pixel Battle Canvas SS2</p>
+            <div id="px-stats" style="text-align:center;margin:10px 0 18px 0;font-size:1.08em;font-weight:600;">
+                <!-- Sẽ được cập nhật bằng JS, thêm class màu cho từng chỉ số -->
+            </div>
         </header>
 
         <section id="stats-grid" class="stats-grid-custom">
@@ -128,6 +131,20 @@
                 </div>
                 <div id="chart-container" class="chart-bg">
                     <canvas id="tournamentChart" height="220"></canvas>
+                </div>
+                <!-- PX Remain Chart Section -->
+                <div class="chart-section">
+                    <div class="chart-title"
+                        style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:2px;">
+                        <img src="images/notpixellogov1.png" alt="PX Remain Logo" class="inline-logo">
+                        <span style="color:#ff5252;font-size:1.25em;font-weight:700;letter-spacing:1px;">PX
+                            Remain</span>
+                        <img src="images/notpixellogov1.png" alt="PX Remain Logo" class="inline-logo">
+                    </div>
+                    <div class="chart-filter" id="chart-filter-px-remain"></div>
+                    <div id="chart-container-px-remain" class="chart-bg">
+                        <canvas id="pxRemainChart" height="220"></canvas>
+                    </div>
                 </div>
                 <div class="chart-section">
                     <div class="chart-title"
