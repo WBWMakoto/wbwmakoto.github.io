@@ -86,25 +86,11 @@
             <div class="pixel-info">
                 <!-- Biểu đồ Tournament Bank -->
                 <div id="chart-filter" style="margin-bottom: 10px; text-align:center;">
-                    <div style="margin-top: 10px;">
-                        <input type="datetime-local" id="start-datetime"
-                            style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; background-color: #333; color: white;">
-                        <span style="color: white; margin: 0 10px;">to</span>
-                        <input type="datetime-local" id="end-datetime"
-                            style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; background-color: #333; color: white;">
-                        <button id="custom-range-btn"
-                            style="padding: 5px 10px; border-radius: 5px; border: none; background-color: #4CAF50; color: white; margin-left: 10px; cursor: pointer;">Filter
-                            (apply to all graphs)</button>
-                        <button id="refresh-btn" title="Làm mới dữ liệu về trạng thái gốc"
-                            style="padding: 5px 10px; border-radius: 5px; border: none; background-color: #2196F3; color: white; margin-left: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
-                            <span style="font-size:1.2em;">&#x21bb;</span> Refresh to default (original)
-                        </button>
-                    </div>
-                    <div style="color:#ff5252;font-size:1em;margin:4px 0 0 0;text-align:left;"><b>ATTENTION:</b> If the
-                        latest data does not appear immediately, please refresh the page or use <b>Ctrl + F5</b> (on
-                        PC/Laptop) to clear the cache and load the newest data. If you are using a phone 📱, I
-                        recommend rotating your device horizontally for the best chart viewing experience after setting
-                        your filters.</div>
+                    <div style="color:#ff5252;font-size:1em;margin:4px 0 0 0;text-align:left;"><b>ATTENTION: If the
+                            latest data does not appear immediately, please refresh the page or use Ctrl + F5 (on
+                            PC/Laptop) to clear the cache and load the newest data. If you are using a phone 📱, I
+                            recommend rotating your device horizontally for the best chart viewing experience after
+                            setting your filters.</b></div>
                     <div class="filter-tips"
                         style="margin:4px 0 0 0;padding:0;text-align:left;font-size:0.97em;color:#b0eaff;line-height:1.4;">
                         <div>
@@ -119,7 +105,21 @@
                         </div>
                         <div style="color:#c0c0c0;font-size:0.93em;margin-top:1px;"><b style="color:#ff5252;">TIPS:</b>
                             You can leave either input blank to use the default above. Keyboard shortcuts for date/time
-                            are supported (if you enter only time, today will be used by default).</div>
+                            are supported (select time first will auto select today).</div>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <input type="datetime-local" id="start-datetime"
+                            style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; background-color: #333; color: white;">
+                        <span style="color: white; margin: 0 10px;">to</span>
+                        <input type="datetime-local" id="end-datetime"
+                            style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; background-color: #333; color: white;">
+                        <button id="custom-range-btn"
+                            style="padding: 5px 10px; border-radius: 5px; border: none; background-color: #4CAF50; color: white; margin-left: 10px; cursor: pointer;">Filter
+                            (apply to all graphs)</button>
+                        <button id="refresh-btn" title="Làm mới dữ liệu về trạng thái gốc"
+                            style="padding: 5px 10px; border-radius: 5px; border: none; background-color: #2196F3; color: white; margin-left: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                            <span style="font-size:1.2em;">&#x21bb;</span> Refresh to default (original)
+                        </button>
                     </div>
                 </div>
                 <div class="chart-title"

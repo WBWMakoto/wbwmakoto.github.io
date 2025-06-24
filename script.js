@@ -14,6 +14,9 @@ window.tradeVolumeChartInstanceRef = { current: null };
 window.pxRemainChartInstanceRef = { current: null };
 let prevRowValues = null;
 
+const PX_API_URL = 'https://tonapi.io/v2/nfts/collections/EQDxPnc-hOZTW5pxFFt56pny-W3UuEs7ktzf-tAGNCkxtOl1';
+const PX_TOTAL = 1048576;
+
 // Hàm để định dạng số cho dễ đọc (ví dụ: 1,000,000)
 function formatNumber(num) {
   if (typeof num !== 'number' || isNaN(num)) return 'Not Available';
@@ -173,10 +176,15 @@ function filterData(range, customRange = {}) {
 
 function drawNoDataMessage(ctx) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  ctx.fillStyle = 'white';
-  ctx.font = '16px "M PLUS Rounded 1c"';
+  ctx.save();
+  ctx.fillStyle = '#ccc';
+  ctx.font = 'bold 11px "M PLUS Rounded 1c", Arial, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('Error/No data - Refresh to solve ', ctx.canvas.width / 2, ctx.canvas.height / 2);
+  ctx.textBaseline = 'middle';
+  const centerX = ctx.canvas.width / 2;
+  const centerY = ctx.canvas.height / 2;
+  ctx.fillText('Error or un-logic timeframe selected. Refresh to resolve', centerX, centerY);
+  ctx.restore();
 }
 
 function renderChartGeneric(canvasId, chartInstanceRef, field, label, color, range = 'all', customRange = {}) {
@@ -629,3 +637,26 @@ async function drawPXRemainChart() {
   });
 }
 document.addEventListener('DOMContentLoaded', drawPXRemainChart);
+
+async function updatePXStats() {
+  const pxStatsEl = document.getElementById('px-stats');
+  try {
+    const res = await fetch(PX_API_URL);
+    if (!res.ok) throw new Error('API Error');
+    const data = await res.json();
+    const minted = typeof data.next_item_index === 'number' ? data.next_item_index : null;
+    if (minted === null) throw new Error('No Data');
+    const mintedPercent = ((minted / PX_TOTAL) * 100).toFixed(2);
+    const remain = PX_TOTAL - minted;
+    const remainPercent = (100 - mintedPercent).toFixed(2);
+    pxStatsEl.innerHTML = `
+      <span class='px-total'>Total PX: ${PX_TOTAL.toLocaleString()} <img src='images/notpixellogov1.png' class='inline-logo'></span>
+      <span class='px-divider'>|</span>
+      <span class='px-minted'>PX Minted: ${minted.toLocaleString()} (${mintedPercent}%) <img src='images/notpixellogov1.png' class='inline-logo'></span>
+      <span class='px-divider'>|</span>
+      <span class='px-remain'>PX Remain: ${remain.toLocaleString()} (${remainPercent}%) <img src='images/notpixellogov1.png' class='inline-logo'></span>
+    `;
+  } catch (e) {
+    pxStatsEl.innerHTML = 'No Available / Error';
+  }
+}
