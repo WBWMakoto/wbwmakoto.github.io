@@ -988,5 +988,15 @@
     "onlinePlayers": 1249,
     "tournamentTradeVolume": 64974832,
     "pxMinted": 885655
+  },
+  {
+    "timestamp": "2025-06-24T14:49:08.396Z",
+    "rewardBank": 7629741.5,
+    "burnBank": 3246698,
+    "totalBank": 10876439.5,
+    "liveTokenSupply": 241653302,
+    "onlinePlayers": 1233,
+    "tournamentTradeVolume": 65002040,
+    "pxMinted": 890221
   }
 ]
