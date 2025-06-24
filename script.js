@@ -29,10 +29,11 @@ async function fetchDataAndUpdate() {
   updateStatusEl.textContent = 'Updating data...';
 
   try {
-    const responses = await Promise.all([fetch(API_URLS.info), fetch(API_URLS.filter), fetch(API_URLS.online)]);
-    const [infoData, filterData, onlineData] = await Promise.all(responses.map((res) => (res.ok ? res.json() : null)));
+    const responses = await Promise.all([fetch(API_URLS.info), fetch(API_URLS.filter), fetch(API_URLS.online), fetch(PX_API_URL)]);
+    const [infoData, filterData, onlineData, pxDataRes] = await Promise.all(responses.map((res) => (res.ok ? res.json() : null)));
+    const pxMinted = pxDataRes && typeof pxDataRes.next_item_index === 'number' ? pxDataRes.next_item_index : 0;
 
-    updateHeaderStats(infoData, onlineData);
+    updateHeaderStats(infoData, onlineData, pxMinted);
     updatePixelDetails(infoData, filterData);
 
     const now = new Date();
@@ -44,7 +45,7 @@ async function fetchDataAndUpdate() {
 }
 
 // Hàm cập nhật 6 chỉ số ở đầu trang
-function updateHeaderStats(infoData, onlineData) {
+function updateHeaderStats(infoData, onlineData, pxMinted) {
   const rewardBank = infoData?.rewardBank;
   const tournamentBank = typeof rewardBank === 'number' ? rewardBank : undefined;
 
@@ -68,7 +69,7 @@ function updateHeaderStats(infoData, onlineData) {
 
   let tournamentTradeVolume = infoData?.tournamentTradeVolume;
   if (typeof tournamentTradeVolume !== 'number' && typeof totalBank === 'number') {
-    tournamentTradeVolume = Math.round(1024 * 1024 + totalBank * 5.88);
+    tournamentTradeVolume = Math.round(pxMinted + totalBank * 5.88);
   }
 
   document.getElementById('tournament-bank').textContent = formatNumber(Math.round(tournamentBank));
