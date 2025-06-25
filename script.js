@@ -249,105 +249,16 @@ function renderChartGeneric(canvasId, chartInstanceRef, field, label, color, ran
   });
 }
 
-function renderPXRemainChart(range = 'all', customRange = {}) {
-  const PX_TOTAL = 1048576;
-  const data = filterData(range, customRange);
-  if (!data || data.length < 2) {
-    const ctx = document.getElementById('pxRemainChart').getContext('2d');
-    drawNoDataMessage(ctx);
-    window.pxRemainChartInstanceRef.current = null;
-    return;
-  }
-
-  const labels = data.map((d) => new Date(d.timestamp).toLocaleString());
-  const values = data.map((d) => (typeof d.pxMinted === 'number' ? PX_TOTAL - d.pxMinted : null));
-
-  const ctx = document.getElementById('pxRemainChart').getContext('2d');
-  if (window.pxRemainChartInstanceRef.current) {
-    window.pxRemainChartInstanceRef.current.destroy();
-  }
-
-  window.pxRemainChartInstanceRef.current = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: 'PX Remain',
-          data: values,
-          borderColor: '#ff5252',
-          backgroundColor: '#ff525222',
-          fill: true,
-          tension: 0.2,
-          pointBackgroundColor: '#fff',
-          pointBorderColor: '#ff5252',
-          pointRadius: 4,
-          pointHoverRadius: 7,
-          pointBorderWidth: 2,
-        },
-      ],
-    },
-    options: {
-      maintainAspectRatio: false,
-      responsive: true,
-      plugins: {
-        legend: {
-          labels: {
-            color: '#ff5252',
-            font: {
-              weight: 'bold',
-              size: 15,
-              family: 'M PLUS Rounded 1c',
-            },
-          },
-        },
-        tooltip: {
-          enabled: true,
-          backgroundColor: '#222',
-          titleColor: '#ff5252',
-          bodyColor: '#fff',
-          borderColor: '#ff5252',
-          borderWidth: 2,
-          titleFont: { weight: 'bold', size: 15, family: 'M PLUS Rounded 1c' },
-          bodyFont: { size: 15, family: 'M PLUS Rounded 1c' },
-          padding: 10,
-          callbacks: {
-            label: (context) => `PX Remain: ${context.formattedValue}`,
-          },
-        },
-      },
-      scales: {
-        x: {
-          ticks: {
-            color: '#fff',
-            font: { size: 13, family: 'M PLUS Rounded 1c' },
-            maxRotation: 30,
-            autoSkip: true,
-            maxTicksLimit: 6,
-            padding: 6,
-          },
-        },
-        y: {
-          ticks: {
-            color: '#fff',
-            font: { size: 13, family: 'M PLUS Rounded 1c' },
-            padding: 6,
-          },
-        },
-      },
-    },
-  });
-}
-
 function applyRangeToAllCharts(range = 'all', customRange = {}) {
   renderChartGeneric('tournamentChart', 'tournamentChartInstanceRef', 'rewardBank', 'Tournament Bank', '#00f2ea', range, customRange);
   renderChartGeneric('liveTokenChart', 'liveTokenChartInstanceRef', 'liveTokenSupply', 'Live Token Supply', '#ffb300', range, customRange);
   renderChartGeneric('onlinePlayersChart', 'onlinePlayersChartInstanceRef', 'onlinePlayers', 'App Online Players', '#00e676', range, customRange);
   renderChartGeneric('tradeVolumeChart', 'tradeVolumeChartInstanceRef', 'tournamentTradeVolume', 'Tournament PX Trade Volume', '#00bcd4', range, customRange);
-  renderPXRemainChart(range, customRange);
+  // ĐÃ HỢP NHẤT: Sử dụng hàm chung để vẽ biểu đồ PX Remain
+  renderChartGeneric('pxRemainChart', 'pxRemainChartInstanceRef', 'pxRemain', 'PX Remain', '#ff5252', range, customRange);
 }
 
-// --- CÁC HÀM TIỆN ÍCH KHÁC (GIỮ NGUYÊN) ---
+// --- CÁC HÀM TIỆN ÍCH KHÁC ---
 
 function renderAutoTable(rewardBank) {
   const container = document.getElementById('auto-table-container');
@@ -505,8 +416,18 @@ document.addEventListener('DOMContentLoaded', () => {
       return res.json();
     })
     .then((data) => {
-      historyData = data && data.length > 0 ? data : [];
+      // TIỀN XỬ LÝ: Tính và thêm trường 'pxRemain' vào dữ liệu
+      const processedData =
+        data && data.length > 0
+          ? data.map((d) => ({
+              ...d,
+              pxRemain: typeof d.pxMinted === 'number' ? PX_TOTAL - d.pxMinted : null,
+            }))
+          : [];
+
+      historyData = processedData;
       applyRangeToAllCharts('all');
+
       // Update tips with first/last data frame times
       if (historyData.length > 0) {
         const first = new Date(historyData[0].timestamp);
@@ -526,20 +447,15 @@ document.addEventListener('DOMContentLoaded', () => {
       applyRangeToAllCharts('all');
     });
 
-  // [ĐÃ SỬA LỖI CUỐI CÙNG]
-  // Listener này giờ sẽ tìm đúng container 'chart-filter' và nút 'custom-range-btn' như trong HTML của bạn.
   const filtersContainer = document.getElementById('chart-filter');
   if (filtersContainer) {
     filtersContainer.addEventListener('click', (event) => {
       const target = event.target;
       if (target.tagName !== 'BUTTON') return;
 
-      // Xử lý các nút filter có sẵn (1H, 1D, etc. nếu có)
       if (target.dataset.range) {
         applyRangeToAllCharts(target.dataset.range);
-      }
-      // Xử lý nút "Filter (apply to all graphs)" với ID chính xác là "custom-range-btn"
-      else if (target.id === 'custom-range-btn') {
+      } else if (target.id === 'custom-range-btn') {
         const start = document.getElementById('start-datetime').value;
         const end = document.getElementById('end-datetime').value;
         applyRangeToAllCharts('custom', { start, end });
@@ -550,14 +466,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const excelInput = document.getElementById('excel-file-input');
   if (excelInput) excelInput.addEventListener('change', handleExcelUpload);
 
-  // Add refresh button logic
   const refreshBtn = document.getElementById('refresh-btn');
   if (refreshBtn) {
     refreshBtn.addEventListener('click', () => {
-      // Reset filter inputs
       document.getElementById('start-datetime').value = '';
       document.getElementById('end-datetime').value = '';
-      // Fetch latest data and redraw everything to default
       fetchDataAndUpdate();
       fetch('history.json')
         .then((res) => {
@@ -565,9 +478,17 @@ document.addEventListener('DOMContentLoaded', () => {
           return res.json();
         })
         .then((data) => {
-          historyData = data && data.length > 0 ? data : [];
+          // TIỀN XỬ LÝ: Tính và thêm trường 'pxRemain' vào dữ liệu (cũng cần ở đây khi refresh)
+          const processedData =
+            data && data.length > 0
+              ? data.map((d) => ({
+                  ...d,
+                  pxRemain: typeof d.pxMinted === 'number' ? PX_TOTAL - d.pxMinted : null,
+                }))
+              : [];
+          historyData = processedData;
           applyRangeToAllCharts('all');
-          // Update tips with first/last data frame times
+
           if (historyData.length > 0) {
             const first = new Date(historyData[0].timestamp);
             const last = new Date(historyData[historyData.length - 1].timestamp);
@@ -592,53 +513,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(updatePXStats, 10000);
 });
 
-// --- PX Remain Chart ---
-async function drawPXRemainChart() {
-  const ctx = document.getElementById('pxRemainChart').getContext('2d');
-  let history = [];
-  try {
-    const res = await fetch('history.json');
-    history = await res.json();
-  } catch (e) {
-    history = [];
-  }
-  const labels = history.map((h) => h.timestamp);
-  const pxMintedArr = history.map((h) => (typeof h.pxMinted === 'number' ? h.pxMinted : null));
-  const pxRemainArr = pxMintedArr.map((m) => (m !== null ? PX_TOTAL - m : null));
-  const data = {
-    labels,
-    datasets: [
-      {
-        label: 'PX Remain',
-        data: pxRemainArr,
-        borderColor: '#ff5252',
-        backgroundColor: 'rgba(255,82,82,0.15)',
-        pointRadius: 1.5,
-        borderWidth: 2,
-        tension: 0.2,
-        fill: true,
-      },
-    ],
-  };
-  if (window.pxRemainChartObj) window.pxRemainChartObj.destroy();
-  window.pxRemainChartObj = new Chart(ctx, {
-    type: 'line',
-    data,
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false },
-        tooltip: { mode: 'index', intersect: false },
-      },
-      scales: {
-        x: { display: false },
-        y: { beginAtZero: true, color: '#fff' },
-      },
-    },
-  });
-}
-document.addEventListener('DOMContentLoaded', drawPXRemainChart);
-
 async function updatePXStats() {
   const pxStatsEl = document.getElementById('px-stats');
   try {
@@ -661,3 +535,5 @@ async function updatePXStats() {
     pxStatsEl.innerHTML = 'No Available / Error';
   }
 }
+
+// CÁC HÀM CŨ ĐÃ ĐƯỢC XÓA: renderPXRemainChart, drawPXRemainChart

@@ -23,7 +23,7 @@ async function main() {
     const pxRes = await fetch('https://tonapi.io/v2/nfts/collections/EQDxPnc-hOZTW5pxFFt56pny-W3UuEs7ktzf-tAGNCkxtOl1');
     const pxData = await pxRes.json();
     if (typeof pxData.next_item_index === 'number') {
-      pxMinted = Math.max(0, pxData.next_item_index - 1);
+      pxMinted = Math.max(0, pxData.next_item_index);
     }
   } catch (e) {
     pxMinted = null;
