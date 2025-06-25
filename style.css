@@ -101,8 +101,16 @@ header {
 
 .subtitle {
     color: var(--secondary-color);
-    font-size: 1.1rem;
+    font-size: 1.13rem;
     margin-top: 8px;
+    text-align: left;
+    background: rgba(0, 242, 234, 0.07);
+    border-left: 4px solid #00f2ea;
+    padding: 12px 18px 12px 18px;
+    border-radius: 8px;
+    font-weight: 500;
+    box-shadow: 0 2px 8px 0 rgba(0, 242, 234, 0.08);
+    position: relative;
 }
 
 .subtitle-jp {
@@ -759,4 +767,94 @@ footer a:hover {
 
 .px-remain {
     color: #ff5252;
+}
+
+.highlight-donate .donate-highlight {
+    color: #ff5252;
+    font-weight: 700;
+    background: linear-gradient(90deg, #fff2, #ff5252aa 80%);
+    padding: 2px 6px;
+    border-radius: 5px;
+    animation: donate-blink 1.2s infinite alternate;
+}
+
+@keyframes donate-blink {
+    0% {
+        background: linear-gradient(90deg, #fff2, #ff5252aa 80%);
+    }
+
+    100% {
+        background: linear-gradient(90deg, #ff5252aa 20%, #fff2);
+    }
+}
+
+.scroll-down-anim {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 1.08em;
+    color: #00f2ea;
+    font-weight: 600;
+    letter-spacing: 1px;
+    animation: scroll-down-bounce 1.2s infinite;
+}
+
+@keyframes scroll-down-bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(6px);
+    }
+}
+
+.arrow-down {
+    font-size: 1.3em;
+    animation: arrow-bounce 1.2s infinite;
+}
+
+@keyframes arrow-bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(8px);
+    }
+}
+
+.share-highlight {
+    color: #00f2ea;
+    font-weight: 600;
+    margin-top: 4px;
+    display: inline-block;
+    letter-spacing: 0.5px;
+}
+
+.tournament-link {
+    color: #fff !important;
+    font-weight: 700;
+    text-shadow: 0 2px 8px #000, 0 0 2px #fff;
+    background: none;
+    -webkit-background-clip: unset;
+    -webkit-text-fill-color: unset;
+    background-clip: unset;
+    transition: text-shadow 0.2s;
+}
+
+.tournament-link:hover {
+    text-shadow: 0 0 12px #fff, 0 0 8px #000;
+    filter: brightness(1.2);
+}
+
+.notpixel-link-logo {
+    width: 1.2em;
+    height: 1.2em;
+    vertical-align: -0.2em;
+    margin: 0 2px 0 2px;
+    display: inline-block;
 }
